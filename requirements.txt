@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+jinja2
+python-multipart
+aiofiles
+passlib[bcrypt]
+python-jose[cryptography]
+gpxpy
+itsdangerous
+bcrypt

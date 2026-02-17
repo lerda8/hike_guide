@@ -1,0 +1,102 @@
+# Server Setup & Deployment Guide
+
+This document provides a comprehensive overview of the server configuration, running services, and deployment procedures for `dockerMachine`. It is designed to help future AI agents or developers understand the environment and deploy new applications efficiently.
+
+## 1. System Overview
+
+*   **Hostname**: `dockerMachine`
+*   **OS**: Debian GNU/Linux 13 (trixie)
+*   **User**: `lucas`
+*   **IP Address**: `192.168.1.10` (LAN) / Public via Cloudflare Tunnel
+*   **Core Services**:
+    *   **Docker**: v29.0.2
+    *   **Cloudflare Tunnel**: `cloudflared` v2025.11.1
+
+## 2. Infrastructure
+
+### Docker
+All applications run as Docker containers.
+*   **Network**: Bridge mode (default)
+*   **Persistence**: Data should ALWAYS be mounted to the host to prevent data loss.
+    *   Common location: `/home/lucas/<app_name>/`
+
+### Cloudflare Tunnel
+The server is exposed to the internet via Cloudflare Tunnel (`cloudflared`), eliminating the need for open ports on the router.
+
+*   **Config File**: `/etc/cloudflared/config.yml`
+*   **Service Name**: `cloudflared.service`
+*   **Logs**: `journalctl -u cloudflared` or `/var/log/syslog` (if configured)
+
+## 3. Current Applications
+
+| Application | Container Name | Internal Port | External Hostname | Data Path (Host) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Greyskull** | `greyskull` | 5000 | `fit.ballaty.cz` | `/home/lucas/greyskull/instance/` |
+| **Metabase** | `metabase` | 3000 | `metabase.ballaty.cz` | *(Verify with `docker inspect`)* |
+| **Grafana** | `grafana` | 3001 | `grafana.ballaty.cz` | *(Verify with `docker inspect`)* |
+| **Uptime Kuma**| `uptime-kuma`| 3002 | *(Not in config?)* | *(Verify with `docker inspect`)* |
+
+## 4. Deployment Procedure (How-To)
+
+To deploy a new application `my-new-app`:
+
+### Step 1: Prepare Host Directory
+Create a directory for the app and its data.
+```bash
+mkdir -p /home/lucas/my-new-app/data
+```
+
+### Step 2: Launch Container
+Run the container, ensuring you:
+1.  **Mount Data**: `-v /home/lucas/my-new-app/data:/data`
+2.  **Expose Port**: `-p <HOST_PORT>:<CONTAINER_PORT>` (e.g., `-p 8080:80`)
+3.  **Restart Policy**: `--restart always`
+
+Example:
+```bash
+docker run -d \
+  --name my-new-app \
+  --restart always \
+  -p 8080:80 \
+  -v /home/lucas/my-new-app/data:/data \
+  my-image:latest
+```
+
+### Step 3: Expose via Cloudflare
+Edit the configuration file:
+```bash
+sudo nano /etc/cloudflared/config.yml
+```
+
+Add a new ingress rule **BEFORE** the catch-all `http_status:404`:
+```yaml
+  - hostname: new-app.ballaty.cz
+    service: http://localhost:8080
+```
+
+### Step 4: Create DNS Record
+1.  Log in to the **Cloudflare Dashboard**.
+2.  Navigate to **DNS > Records**.
+3.  Add a new record:
+    *   **Type**: `CNAME`
+    *   **Name**: `new-app` (subdomain part)
+    *   **Target**: `<TUNNEL_ID>.cfargotunnel.com` (Find Tunnel ID in `config.yml`)
+    *   **Proxy status**: Proxied (Orange Cloud)
+
+### Step 5: Apply Changes
+Restart the tunnel to pick up the new configuration:
+```bash
+sudo systemctl restart cloudflared
+```
+
+### Step 6: Verify
+1.  Check tunnel status: `systemctl status cloudflared`
+2.  Verify public access: Visit `https://new-app.ballaty.cz`
+
+## 5. Maintenance Commands
+
+*   **List running containers**: `docker ps`
+*   **View container logs**: `docker logs <container_name>`
+*   **Restart Cloudflare**: `sudo systemctl restart cloudflared`
+*   **Check Disk Usage**: `df -h`
+EOF"

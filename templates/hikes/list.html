@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}All Hikes - Hike Guide{% endblock %}
+
+{% block content %}
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">All Hikes</h2>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+        <a href="/hikes/new"
+            class="ml-3 inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Add
+            Hike</a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% for hike in hikes %}
+    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <!-- Icon placeholder -->
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">{{ hike.distance }} km • {{
+                            hike.difficulty }}</dt>
+                        <dd>
+                            <a href="/hikes/{{ hike.id }}"
+                                class="text-lg font-medium text-gray-900 hover:text-green-600">{{ hike.title }}</a>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <a href="/hikes/{{ hike.id }}" class="font-medium text-green-700 hover:text-green-900">View details</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-full text-center py-10">
+        <p class="text-gray-500">No hikes found.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
