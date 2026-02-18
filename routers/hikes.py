@@ -186,10 +186,19 @@ async def mapy_static_map(hike_id: int, session: Session = Depends(get_session))
             [min(lons), min(lats)],
             [max(lons), max(lats)],
         ]
+    elif hike.start_lon is not None and hike.start_lat is not None and hike.end_lon is not None and hike.end_lat is not None:
+        # Both start and end: use them as bounds
+        bounds = [
+            [min(hike.start_lon, hike.end_lon), min(hike.start_lat, hike.end_lat)],
+            [max(hike.start_lon, hike.end_lon), max(hike.start_lat, hike.end_lat)],
+        ]
     elif hike.start_lon is not None and hike.start_lat is not None:
-        bounds = [[hike.start_lon, hike.start_lat]]
-        if hike.end_lon is not None and hike.end_lat is not None:
-            bounds.append([hike.end_lon, hike.end_lat])
+        # Only start: zoom around it with a small padding
+        padding = 0.01
+        bounds = [
+            [hike.start_lon - padding, hike.start_lat - padding],
+            [hike.start_lon + padding, hike.start_lat + padding],
+        ]
 
     # Can't generate a static map without at least one coordinate
     if not bounds and not coordinates:

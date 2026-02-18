@@ -5,15 +5,22 @@
 {% block head %}
 <style>
     #map-container {
-        height: calc(100vh - 180px);
+        height: calc(100vh - 210px);
         min-height: 500px;
         display: flex;
         border-radius: 0.75rem;
         overflow: hidden;
+        background: #fff;
+        ring: 1px solid #e5e1da;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    #all-hikes-map { flex: 1; min-width: 0; }
+    #all-hikes-map {
+        flex: 1;
+        min-width: 0;
+        background: #f9f9f7;
+    }
     #hike-sidebar {
-        width: 340px;
+        width: 360px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -21,61 +28,130 @@
         background: #fff;
     }
     #hike-sidebar-header {
-        padding: 0.75rem 1rem;
+        padding: 1rem;
         border-bottom: 1px solid #e5e1da;
         background: #fafaf7;
+        flex-shrink: 0;
+    }
+    #hike-sidebar-header h2 {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+    #hike-sidebar-header p {
+        font-size: 0.75rem;
+        color: #888;
+        margin: 0.5rem 0 0 0;
     }
     #hike-list {
         flex: 1;
         overflow-y: auto;
         scrollbar-width: thin;
-        scrollbar-color: #c5c0b8 transparent;
+        scrollbar-color: #d1cdc5 transparent;
     }
     #hike-list::-webkit-scrollbar { width: 6px; }
-    #hike-list::-webkit-scrollbar-thumb { background: #c5c0b8; border-radius: 3px; }
+    #hike-list::-webkit-scrollbar-track { background: transparent; }
+    #hike-list::-webkit-scrollbar-thumb { background: #d1cdc5; border-radius: 3px; }
+    #hike-list::-webkit-scrollbar-thumb:hover { background: #9e9a92; }
+
     .hike-card {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #f0ece6;
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid #f3ede5;
         cursor: pointer;
-        transition: background 0.15s;
+        transition: all 0.2s ease;
+        user-select: none;
     }
-    .hike-card:hover, .hike-card.highlighted {
+    .hike-card:hover {
+        background: #f8faf7;
+        border-bottom-color: #e5e1da;
+    }
+    .hike-card.highlighted {
         background: #f0fdf4;
+        border-left: 3px solid #2d7e41;
+        padding-left: calc(1rem - 3px);
+    }
+    .hike-card .card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
     }
     .hike-card .color-dot {
-        width: 10px; height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         flex-shrink: 0;
-        margin-top: 4px;
+        margin-top: 2px;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+    }
+    .hike-card .card-title {
+        flex: 1;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    .hike-card .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.25rem;
+    }
+    .hike-card .card-meta span {
+        display: inline-block;
     }
     .hike-card.hidden-viewport { display: none; }
-    #empty-state { display: none; padding: 2rem 1rem; text-align: center; }
+
+    #empty-state {
+        display: none;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        color: #999;
+    }
+    #empty-state svg { color: #ddd; }
 
     @media (max-width: 768px) {
-        #map-container { flex-direction: column-reverse; height: auto; }
-        #all-hikes-map { height: 50vh; min-height: 300px; }
-        #hike-sidebar { width: 100%; max-height: 40vh; border-left: none; border-top: 1px solid #e5e1da; }
+        #map-container {
+            flex-direction: column-reverse;
+            height: auto;
+            border-radius: 0;
+        }
+        #all-hikes-map {
+            height: 50vh;
+            min-height: 300px;
+        }
+        #hike-sidebar {
+            width: 100%;
+            max-height: 40vh;
+            border-left: none;
+            border-top: 1px solid #e5e1da;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Header -->
-<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
-        <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900">All Hikes Map</h1>
-        <p class="mt-1 text-sm text-gray-500">{{ hike_markers|length }} hike{{ 's' if hike_markers|length != 1 else '' }} total</p>
+        <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">All Hikes Map</h1>
+        <p class="mt-2 text-sm text-gray-500">{{ hike_markers|length }} hike{{ 's' if hike_markers|length != 1 else '' }} on the map</p>
     </div>
-    <div class="flex items-center gap-2">
-        <a href="/hikes"
+    <div class="flex items-center gap-2 flex-shrink-0">
+        <a href="/hikes" id="nav-explore"
            class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-600 ring-1 ring-sand-200 hover:bg-sand-50 transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
-            List View
+            List
         </a>
         <a href="/hikes/new"
            class="inline-flex items-center gap-1.5 rounded-xl bg-forest-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-forest-700 transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Add Hike
+            Add
         </a>
     </div>
 </div>
@@ -103,6 +179,15 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Mark the map container so the base CSS height override doesn't clobber the flex height
+    document.getElementById('all-hikes-map').querySelector && (function() {
+        var observer = new MutationObserver(function(mutations, obs) {
+            var lc = document.querySelector('#all-hikes-map .leaflet-container');
+            if (lc) { lc.classList.add('no-default-height'); obs.disconnect(); }
+        });
+        observer.observe(document.getElementById('all-hikes-map'), { childList: true, subtree: true });
+    })();
+
     var map = L.map('all-hikes-map').setView([49.8175, 15.4730], 7);
 
     L.tileLayer('{{ tile_url }}', {
@@ -186,14 +271,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (h.estimated_time) badges.push(h.estimated_time);
 
         card.innerHTML =
-            '<div class="flex gap-2.5">' +
+            '<div class="card-header">' +
                 '<div class="color-dot" style="background:' + color + '"></div>' +
                 '<div class="flex-1 min-w-0">' +
-                    '<div class="flex items-center gap-1.5">' +
-                        '<span class="text-sm font-semibold text-gray-900 truncate">' + h.title + '</span>' +
-                        (h.difficulty ? '<span class="text-xs flex-shrink-0">' + (difficultyIcon[h.difficulty] || '') + '</span>' : '') +
+                    '<div class="card-title">' +
+                        h.title +
+                        (h.difficulty ? ' <span class="font-normal text-gray-400">' + (difficultyIcon[h.difficulty] || '') + '</span>' : '') +
                     '</div>' +
-                    (badges.length ? '<div class="text-xs text-gray-500 mt-0.5">' + badges.join(' · ') + '</div>' : '') +
+                    (badges.length ? '<div class="card-meta">' +
+                        badges.map(function(b) { return '<span>' + b + '</span>'; }).join('<span class="text-gray-300">·</span>') +
+                    '</div>' : '') +
                 '</div>' +
             '</div>';
 

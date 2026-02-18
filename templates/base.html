@@ -28,7 +28,12 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
         .leaflet-container { height: 400px; width: 100%; border-radius: 0.75rem; }
+        /* Override for full-bleed map pages that set their own height */
+        .leaflet-container.no-default-height { height: 100%; border-radius: 0; }
         body { -webkit-font-smoothing: antialiased; }
+
+        /* Dev mode banner */
+        #dev-banner { background: #7c3aed; color: #fff; text-align: center; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; padding: 3px 0; }
 
         /* ── Toast notification ─────────────────────────── */
         #toast-container { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
@@ -56,25 +61,28 @@
 </head>
 <body class="bg-sand-50 text-gray-800 min-h-screen flex flex-col">
 
+    <!-- Dev mode banner -->
+    <div id="dev-banner">DEV MODE &mdash; logged in as demo</div>
+
     <!-- Navbar -->
     <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-sand-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-12">
-                <a href="/" class="flex items-center gap-1.5">
-                    <svg class="w-5 h-5 text-forest-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
-                    <span class="font-display font-bold text-lg text-forest-700">HikeGuide</span>
+            <div class="flex items-center justify-between h-14">
+                <a href="/" class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-forest-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+                    <span class="font-display font-bold text-xl text-forest-700">HikeGuide</span>
                 </a>
                 <div class="flex items-center gap-0.5">
-                    <a href="/hikes"
-                       class="px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-forest-700 hover:bg-forest-50 transition-all">
+                    <a href="/hikes" id="nav-explore"
+                       class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-forest-700 hover:bg-forest-50 transition-all">
                         Explore
                     </a>
-                    <a href="/hikes/map"
-                       class="px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-forest-700 hover:bg-forest-50 transition-all">
+                    <a href="/hikes/map" id="nav-map"
+                       class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-forest-700 hover:bg-forest-50 transition-all">
                         Map
                     </a>
-                    <a href="/hikes/new"
-                       class="ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-forest-600 hover:bg-forest-700 transition-all">
+                    <a href="/hikes/new" id="nav-new"
+                       class="ml-2 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-white bg-forest-600 hover:bg-forest-700 transition-all">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                         New Hike
                     </a>
@@ -93,6 +101,27 @@
     <!-- Toast container -->
     <div id="toast-container"></div>
     <script>
+        // Active nav link highlighting
+        (function() {
+            var path = window.location.pathname;
+            var navMap = {
+                'nav-explore': path.startsWith('/hikes') && !path.startsWith('/hikes/map') && !path.startsWith('/hikes/new'),
+                'nav-map':     path.startsWith('/hikes/map'),
+                'nav-new':     path.startsWith('/hikes/new'),
+            };
+            Object.keys(navMap).forEach(function(id) {
+                if (!navMap[id]) return;
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (id === 'nav-new') {
+                    el.classList.replace('bg-forest-600', 'bg-forest-800');
+                } else {
+                    el.classList.add('text-forest-700', 'bg-forest-50', 'font-semibold');
+                    el.classList.remove('text-gray-600');
+                }
+            });
+        })();
+
         function showToast(message, type) {
             var container = document.getElementById('toast-container');
             var toast = document.createElement('div');

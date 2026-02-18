@@ -9,19 +9,57 @@
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
         All hikes
     </a>
-    <form action="/hikes/{{ hike.id }}/delete" method="POST"
-          onsubmit="return confirm('Are you sure you want to delete this hike? This cannot be undone.')">
-        <button type="submit"
-                class="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-100 transition-colors">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-            Delete
-        </button>
-    </form>
+    <button id="delete-btn" type="button"
+            class="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-100 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+        Delete
+    </button>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(2px);">
+    <div class="bg-white rounded-2xl shadow-lg max-w-sm w-full animate-in">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c.866 1.5 2.926 2.871 5.303 2.871s4.437-1.372 5.303-2.87m0 0a3.75 3.75 0 1 0-5.303 0m7.5-4.5a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"/></svg>
+            </div>
+            <h3 class="font-display font-bold text-lg text-center text-gray-900 mb-2">Delete hike?</h3>
+            <p class="text-center text-sm text-gray-600 mb-6">
+                <span class="font-semibold">{{ hike.title }}</span> will be permanently deleted. This cannot be undone.
+            </p>
+        </div>
+        <div class="flex gap-3 p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+            <button id="modal-cancel" type="button" class="flex-1 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-white ring-1 ring-gray-300 hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+            <form id="delete-form" action="/hikes/{{ hike.id }}/delete" method="POST" class="flex-1">
+                <button type="submit" class="w-full px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Title section -->
 <div class="mb-8">
+    <div class="flex flex-wrap items-center gap-2 mb-2">
+        {% if hike.status == 'Completed' %}
+        <span class="inline-flex items-center gap-1 rounded-full bg-forest-100 px-2.5 py-0.5 text-xs font-semibold text-forest-700">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            Completed
+        </span>
+        {% else %}
+        <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">Planned</span>
+        {% endif %}
+    </div>
     <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">{{ hike.title }}</h1>
+    {% if hike.start_name or hike.end_name %}
+    <p class="mt-1.5 text-sm text-gray-500 flex items-center gap-1.5">
+        <svg class="w-4 h-4 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+        {% if hike.start_name %}{{ hike.start_name }}{% endif %}{% if hike.start_name and hike.end_name %} → {% endif %}{% if hike.end_name %}{{ hike.end_name }}{% endif %}
+    </p>
+    {% endif %}
     <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
         {% if hike.distance %}
         <span class="inline-flex items-center gap-1.5 rounded-full bg-forest-50 px-3 py-1 text-forest-700 ring-1 ring-forest-200 font-medium">
@@ -65,28 +103,26 @@
         {% endif %}
 
         <!-- Mapy.com links & share -->
-        {% if mapy_route_url %}
         <div class="flex flex-wrap gap-3">
-            <a href="{{ mapy_route_url }}" target="_blank"
+            {% if mapy_route_url %}
+            <a href="{{ mapy_route_url }}" target="_blank" rel="noopener"
                class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-forest-700 ring-1 ring-forest-200 hover:bg-forest-50 transition-colors">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c-.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
                 Open route in Mapy.cz
             </a>
+            {% elif mapy_show_url %}
+            <a href="{{ mapy_show_url }}" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-forest-700 ring-1 ring-forest-200 hover:bg-forest-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+                View on Mapy.cz
+            </a>
+            {% endif %}
             <button onclick="shareHike()" type="button"
                     class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-600 ring-1 ring-sand-200 hover:bg-sand-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
                 <span id="share-text">Copy link</span>
             </button>
         </div>
-        {% else %}
-        <div class="flex flex-wrap gap-3">
-            <button onclick="shareHike()" type="button"
-                    class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-600 ring-1 ring-sand-200 hover:bg-sand-50 transition-colors">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
-                <span id="share-text">Copy link</span>
-            </button>
-        </div>
-        {% endif %}
 
         <!-- Photos -->
         <div class="bg-white rounded-2xl p-6 ring-1 ring-sand-200 shadow-sm">
@@ -242,7 +278,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Default to Prague/Czechia center
-        var map = L.map('hike-map').setView([49.8175, 15.4730], 7);
+        var map = L.map('hike-map', { zoomControl: true }).setView([49.8175, 15.4730], 7);
 
         L.tileLayer('{{ tile_url }}', {
             attribution: '{{ tile_attribution|safe }}',
@@ -530,6 +566,38 @@
         });
 
         render(currentVal, false);
+    })();
+
+    // ── Delete confirmation modal ───────────────────────────
+    (function() {
+        var deleteBtn = document.getElementById('delete-btn');
+        var deleteModal = document.getElementById('delete-modal');
+        var modalCancel = document.getElementById('modal-cancel');
+        var deleteForm = document.getElementById('delete-form');
+
+        if (!deleteBtn) return;
+
+        deleteBtn.addEventListener('click', function() {
+            deleteModal.classList.remove('hidden');
+        });
+
+        modalCancel.addEventListener('click', function() {
+            deleteModal.classList.add('hidden');
+        });
+
+        // Close modal on outside click
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                deleteModal.classList.add('hidden');
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !deleteModal.classList.contains('hidden')) {
+                deleteModal.classList.add('hidden');
+            }
+        });
     })();
 </script>
 {% endblock %}
