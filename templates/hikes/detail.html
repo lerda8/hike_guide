@@ -4,35 +4,39 @@
 
 {% block head %}
 <style>
-    .tree-sway { animation: tree-sway 4s ease-in-out infinite; }
-    .bird-soar { animation: bird-soar 8s ease-in-out infinite; }
-    .feather-fall { animation: feather-fall 4s ease-in-out infinite; }
-    @keyframes tree-sway { 0%, 100% { transform: translateX(0) scaleX(1); } 50% { transform: translateX(2px) scaleX(1); } }
-    @keyframes bird-soar { 0%, 100% { transform: translateX(0) translateY(0); opacity: 0.2; } 50% { transform: translateX(20px) translateY(-15px); opacity: 0.5; } }
-    @keyframes feather-fall { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; } 50% { transform: translateY(10px) rotate(-15deg); opacity: 0.6; } }
+    .tree-sway   { animation: nat-sway 5s ease-in-out infinite; transform-origin: bottom center; }
+    .bird-soar   { animation: nat-fly 9s ease-in-out infinite; }
+    .bird-soar-2 { animation: nat-fly 7s ease-in-out infinite 1.8s; }
+    .feather-fall { animation: nat-drift 5s ease-in-out infinite; }
+    @keyframes nat-sway  { 0%,100%{transform:rotate(0deg)} 30%{transform:rotate(1.5deg)} 70%{transform:rotate(-1deg)} }
+    @keyframes nat-fly   { 0%,100%{transform:translate(0,0)} 40%{transform:translate(14px,-8px)} 70%{transform:translate(28px,-3px)} }
+    @keyframes nat-drift { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(7px) rotate(-12deg)} }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Decorative background elements -->
-<svg class="absolute -top-40 -left-48 w-64 h-64 text-forest-200/10 tree-sway hidden lg:block pointer-events-none" viewBox="0 0 200 200" fill="currentColor">
-    <!-- Large pine tree left background -->
-    <polygon points="100,10 20,80 180,80"/>
-    <polygon points="100,45 15,120 185,120"/>
-    <polygon points="100,85 0,170 200,170"/>
-    <rect x="80" y="170" width="40" height="55" fill="currentColor" opacity="0.5"/>
+<!-- Decorative: tall spruce background left -->
+<svg class="absolute -top-4 -left-24 w-20 h-52 text-forest-700/[0.06] tree-sway hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
+    <polygon points="30,0 12,42 48,42"/>
+    <polygon points="30,28 8,68 52,68"/>
+    <polygon points="30,54 4,98 56,98"/>
+    <polygon points="30,82 0,130 60,130"/>
+    <rect x="25" y="128" width="10" height="32" rx="2"/>
 </svg>
-
-<svg class="absolute top-1/4 -right-32 w-52 h-52 text-forest-300/8 bird-soar hidden lg:block pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-    <!-- Flying bird silhouette -->
-    <path d="M12 2c-6 0-11 2-11 5 0 2 2 4 5 5-1 1-2 3-2 5 0 3 3 6 6 6s6-3 6-6c0-2-1-4-2-5 3-1 5-3 5-5 0-3-5-5-11-5z"/>
+<!-- Two birds in flight -->
+<svg class="absolute top-20 right-[35%] w-8 h-4 text-gray-500/20 bird-soar hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
+    <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
+    <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
 </svg>
-
-<svg class="absolute bottom-1/3 right-1/4 w-4 h-6 text-amber-300/20 feather-fall hidden lg:block pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-    <!-- Falling feather -->
-    <path d="M6 2c0 0 0 4 2 8 2 4 4 8 8 12 0 0-2-4-4-8-2-4-6-12-6-12z"/>
+<svg class="absolute top-28 right-[30%] w-5 h-2.5 text-gray-500/15 bird-soar-2 hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
+    <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
+    <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
 </svg>
-{% endblock %}
+<!-- Feather -->
+<svg class="absolute bottom-[28%] right-[22%] w-4 h-9 text-amber-600/15 feather-fall hidden lg:block pointer-events-none" viewBox="0 0 20 48" fill="currentColor">
+    <path d="M10,0 C10,0 18,8 18,20 C18,32 14,40 10,48 C10,48 10,40 8,32 C6,24 2,16 2,8 C2,4 6,0 10,0 Z"/>
+    <line x1="10" y1="2" x2="10" y2="46" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+</svg>
 
 {% block content %}
 <!-- Breadcrumb & actions -->

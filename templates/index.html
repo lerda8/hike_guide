@@ -2,49 +2,69 @@
 
 {% block head %}
 <style>
-    .tree-left { animation: sway 4s ease-in-out infinite; }
-    .tree-right { animation: sway 3.5s ease-in-out infinite 0.5s; }
-    .bird { animation: fly 8s ease-in-out infinite; }
-    .feather { animation: flutter 2s ease-in-out infinite; }
-    @keyframes sway { 0%, 100% { transform: translateX(0) scaleX(1); } 50% { transform: translateX(3px) scaleX(1); } }
-    @keyframes fly { 0%, 100% { transform: translateX(0) translateY(0); opacity: 0.4; } 50% { transform: translateX(20px) translateY(-10px); opacity: 0.8; } }
-    @keyframes flutter { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 50% { transform: rotate(-15deg); } 75% { transform: rotate(8deg); } }
+    .tree-left  { animation: nat-sway 5s ease-in-out infinite; transform-origin: bottom center; }
+    .tree-right { animation: nat-sway 4s ease-in-out infinite 0.8s; transform-origin: bottom center; }
+    .bird-1 { animation: nat-fly 9s ease-in-out infinite; }
+    .bird-2 { animation: nat-fly 7s ease-in-out infinite 1.5s; }
+    .feather-1 { animation: nat-drift 5s ease-in-out infinite; }
+    .feather-2 { animation: nat-drift 4s ease-in-out infinite 0.7s; }
+    @keyframes nat-sway {
+        0%, 100% { transform: rotate(0deg); }
+        30%       { transform: rotate(1.5deg); }
+        70%       { transform: rotate(-1deg); }
+    }
+    @keyframes nat-fly {
+        0%, 100% { transform: translate(0, 0); }
+        40%       { transform: translate(14px, -8px); }
+        70%       { transform: translate(28px, -4px); }
+    }
+    @keyframes nat-drift {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50%       { transform: translateY(6px) rotate(-12deg); }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="py-8 sm:py-14 relative">
 
-    <!-- Decorative background elements -->
-    <svg class="absolute -top-20 -left-32 w-48 h-48 text-forest-200/20 tree-left hidden lg:block" viewBox="0 0 200 200" fill="currentColor">
-        <!-- Large pine tree left -->
-        <polygon points="100,20 40,80 160,80"/>
-        <polygon points="100,50 35,110 165,110"/>
-        <polygon points="100,85 20,155 180,155"/>
-        <rect x="85" y="155" width="30" height="45" fill="currentColor" opacity="0.6"/>
+    <!-- Decorative: tall spruce tree left -->
+    <svg class="absolute -top-6 -left-28 w-28 h-64 text-forest-600/[0.07] tree-left hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
+        <polygon points="30,0 12,42 48,42"/>
+        <polygon points="30,28 8,68 52,68"/>
+        <polygon points="30,54 4,98 56,98"/>
+        <polygon points="30,82 0,130 60,130"/>
+        <rect x="25" y="128" width="10" height="32" rx="2"/>
     </svg>
 
-    <svg class="absolute top-40 -right-24 w-40 h-40 text-forest-300/15 tree-right hidden lg:block" viewBox="0 0 200 200" fill="currentColor">
-        <!-- Medium pine tree right -->
-        <polygon points="100,30 50,90 150,90"/>
-        <polygon points="100,65 45,120 155,120"/>
-        <polygon points="100,100 30,170 170,170"/>
-        <rect x="85" y="170" width="30" height="40" fill="currentColor" opacity="0.5"/>
+    <!-- Decorative: shorter spruce tree right, partially clipped -->
+    <svg class="absolute top-8 -right-20 w-20 h-44 text-forest-600/[0.05] tree-right hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
+        <polygon points="30,10 14,48 46,48"/>
+        <polygon points="30,36 10,74 50,74"/>
+        <polygon points="30,62 6,106 54,106"/>
+        <polygon points="30,92 2,138 58,138"/>
+        <rect x="25" y="136" width="10" height="24" rx="2"/>
     </svg>
 
-    <svg class="absolute top-20 right-1/3 w-6 h-6 text-amber-400/40 bird hidden lg:block" viewBox="0 0 24 24" fill="currentColor">
-        <!-- Flying bird -->
-        <path d="M12 2c-6 0-11 2-11 5 0 2 2 4 5 5-1 1-2 3-2 5 0 3 3 6 6 6s6-3 6-6c0-2-1-4-2-5 3-1 5-3 5-5 0-3-5-5-11-5z"/>
+    <!-- Decorative: two small birds in flight (realistic silhouette) -->
+    <svg class="absolute top-16 right-[38%] w-8 h-4 text-gray-400/30 bird-1 hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
+        <!-- left wing up, right wing up -->
+        <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
+        <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
+    </svg>
+    <svg class="absolute top-24 right-[33%] w-5 h-2.5 text-gray-400/20 bird-2 hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
+        <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
+        <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
     </svg>
 
-    <svg class="absolute bottom-1/4 left-1/4 w-4 h-6 text-amber-300/30 feather hidden lg:block" viewBox="0 0 24 24" fill="currentColor">
-        <!-- Feather -->
-        <path d="M6 2c0 0 0 4 2 8 2 4 4 8 8 12 0 0-2-4-4-8-2-4-6-12-6-12z"/>
+    <!-- Decorative: feathers -->
+    <svg class="absolute bottom-[28%] left-[22%] w-5 h-10 text-amber-500/20 feather-1 hidden lg:block pointer-events-none" viewBox="0 0 20 48" fill="currentColor">
+        <path d="M10,0 C10,0 18,8 18,20 C18,32 14,40 10,48 C10,48 10,40 8,32 C6,24 2,16 2,8 C2,4 6,0 10,0 Z"/>
+        <line x1="10" y1="0" x2="10" y2="48" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
     </svg>
-
-    <svg class="absolute top-1/3 right-20 w-5 h-7 text-amber-300/25 feather hidden lg:block" viewBox="0 0 24 24" fill="currentColor" style="animation: flutter 2.5s ease-in-out infinite 0.3s;">
-        <!-- Feather 2 -->
-        <path d="M6 2c0 0 0 4 2 8 2 4 4 8 8 12 0 0-2-4-4-8-2-4-6-12-6-12z"/>
+    <svg class="absolute top-[35%] right-16 w-4 h-8 text-amber-500/15 feather-2 hidden lg:block pointer-events-none" viewBox="0 0 20 48" fill="currentColor">
+        <path d="M10,0 C10,0 18,8 18,20 C18,32 14,40 10,48 C10,48 10,40 8,32 C6,24 2,16 2,8 C2,4 6,0 10,0 Z"/>
+        <line x1="10" y1="0" x2="10" y2="48" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
     </svg>
 
     <!-- Greeting -->
