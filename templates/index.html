@@ -1,10 +1,54 @@
 {% extends "base.html" %}
 
+{% block head %}
+<style>
+    .tree-left { animation: sway 4s ease-in-out infinite; }
+    .tree-right { animation: sway 3.5s ease-in-out infinite 0.5s; }
+    .bird { animation: fly 8s ease-in-out infinite; }
+    .feather { animation: flutter 2s ease-in-out infinite; }
+    @keyframes sway { 0%, 100% { transform: translateX(0) scaleX(1); } 50% { transform: translateX(3px) scaleX(1); } }
+    @keyframes fly { 0%, 100% { transform: translateX(0) translateY(0); opacity: 0.4; } 50% { transform: translateX(20px) translateY(-10px); opacity: 0.8; } }
+    @keyframes flutter { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 50% { transform: rotate(-15deg); } 75% { transform: rotate(8deg); } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="py-8 sm:py-14">
+<div class="py-8 sm:py-14 relative">
+
+    <!-- Decorative background elements -->
+    <svg class="absolute -top-20 -left-32 w-48 h-48 text-forest-200/20 tree-left hidden lg:block" viewBox="0 0 200 200" fill="currentColor">
+        <!-- Large pine tree left -->
+        <polygon points="100,20 40,80 160,80"/>
+        <polygon points="100,50 35,110 165,110"/>
+        <polygon points="100,85 20,155 180,155"/>
+        <rect x="85" y="155" width="30" height="45" fill="currentColor" opacity="0.6"/>
+    </svg>
+
+    <svg class="absolute top-40 -right-24 w-40 h-40 text-forest-300/15 tree-right hidden lg:block" viewBox="0 0 200 200" fill="currentColor">
+        <!-- Medium pine tree right -->
+        <polygon points="100,30 50,90 150,90"/>
+        <polygon points="100,65 45,120 155,120"/>
+        <polygon points="100,100 30,170 170,170"/>
+        <rect x="85" y="170" width="30" height="40" fill="currentColor" opacity="0.5"/>
+    </svg>
+
+    <svg class="absolute top-20 right-1/3 w-6 h-6 text-amber-400/40 bird hidden lg:block" viewBox="0 0 24 24" fill="currentColor">
+        <!-- Flying bird -->
+        <path d="M12 2c-6 0-11 2-11 5 0 2 2 4 5 5-1 1-2 3-2 5 0 3 3 6 6 6s6-3 6-6c0-2-1-4-2-5 3-1 5-3 5-5 0-3-5-5-11-5z"/>
+    </svg>
+
+    <svg class="absolute bottom-1/4 left-1/4 w-4 h-6 text-amber-300/30 feather hidden lg:block" viewBox="0 0 24 24" fill="currentColor">
+        <!-- Feather -->
+        <path d="M6 2c0 0 0 4 2 8 2 4 4 8 8 12 0 0-2-4-4-8-2-4-6-12-6-12z"/>
+    </svg>
+
+    <svg class="absolute top-1/3 right-20 w-5 h-7 text-amber-300/25 feather hidden lg:block" viewBox="0 0 24 24" fill="currentColor" style="animation: flutter 2.5s ease-in-out infinite 0.3s;">
+        <!-- Feather 2 -->
+        <path d="M6 2c0 0 0 4 2 8 2 4 4 8 8 12 0 0-2-4-4-8-2-4-6-12-6-12z"/>
+    </svg>
 
     <!-- Greeting -->
-    <div class="mb-10">
+    <div class="mb-10 relative z-10">
         <h1 class="font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
             Hey, where are<br>we hiking next?
         </h1>

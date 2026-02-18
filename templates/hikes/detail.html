@@ -2,9 +2,41 @@
 
 {% block title %}{{ hike.title }} - Hike Guide{% endblock %}
 
+{% block head %}
+<style>
+    .tree-sway { animation: tree-sway 4s ease-in-out infinite; }
+    .bird-soar { animation: bird-soar 8s ease-in-out infinite; }
+    .feather-fall { animation: feather-fall 4s ease-in-out infinite; }
+    @keyframes tree-sway { 0%, 100% { transform: translateX(0) scaleX(1); } 50% { transform: translateX(2px) scaleX(1); } }
+    @keyframes bird-soar { 0%, 100% { transform: translateX(0) translateY(0); opacity: 0.2; } 50% { transform: translateX(20px) translateY(-15px); opacity: 0.5; } }
+    @keyframes feather-fall { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; } 50% { transform: translateY(10px) rotate(-15deg); opacity: 0.6; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Decorative background elements -->
+<svg class="absolute -top-40 -left-48 w-64 h-64 text-forest-200/10 tree-sway hidden lg:block pointer-events-none" viewBox="0 0 200 200" fill="currentColor">
+    <!-- Large pine tree left background -->
+    <polygon points="100,10 20,80 180,80"/>
+    <polygon points="100,45 15,120 185,120"/>
+    <polygon points="100,85 0,170 200,170"/>
+    <rect x="80" y="170" width="40" height="55" fill="currentColor" opacity="0.5"/>
+</svg>
+
+<svg class="absolute top-1/4 -right-32 w-52 h-52 text-forest-300/8 bird-soar hidden lg:block pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+    <!-- Flying bird silhouette -->
+    <path d="M12 2c-6 0-11 2-11 5 0 2 2 4 5 5-1 1-2 3-2 5 0 3 3 6 6 6s6-3 6-6c0-2-1-4-2-5 3-1 5-3 5-5 0-3-5-5-11-5z"/>
+</svg>
+
+<svg class="absolute bottom-1/3 right-1/4 w-4 h-6 text-amber-300/20 feather-fall hidden lg:block pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+    <!-- Falling feather -->
+    <path d="M6 2c0 0 0 4 2 8 2 4 4 8 8 12 0 0-2-4-4-8-2-4-6-12-6-12z"/>
+</svg>
+{% endblock %}
+
 {% block content %}
 <!-- Breadcrumb & actions -->
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 flex items-center justify-between relative z-10">
     <a href="/hikes" class="inline-flex items-center gap-1.5 text-sm font-medium text-forest-600 hover:text-forest-800 transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
         All hikes
