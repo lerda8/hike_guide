@@ -2,73 +2,16 @@
 
 {% block head %}
 <style>
-    .tree-left  { animation: nat-sway 5s ease-in-out infinite; transform-origin: bottom center; }
-    .tree-right { animation: nat-sway 4s ease-in-out infinite 0.8s; transform-origin: bottom center; }
-    .bird-1 { animation: nat-fly 9s ease-in-out infinite; }
-    .bird-2 { animation: nat-fly 7s ease-in-out infinite 1.5s; }
-    .feather-1 { animation: nat-drift 5s ease-in-out infinite; }
-    .feather-2 { animation: nat-drift 4s ease-in-out infinite 0.7s; }
-    @keyframes nat-sway {
-        0%, 100% { transform: rotate(0deg); }
-        30%       { transform: rotate(1.5deg); }
-        70%       { transform: rotate(-1deg); }
-    }
-    @keyframes nat-fly {
-        0%, 100% { transform: translate(0, 0); }
-        40%       { transform: translate(14px, -8px); }
-        70%       { transform: translate(28px, -4px); }
-    }
-    @keyframes nat-drift {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50%       { transform: translateY(6px) rotate(-12deg); }
-    }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="py-8 sm:py-14 relative">
-
-    <!-- Decorative: tall spruce tree left -->
-    <svg class="absolute -top-6 -left-28 w-28 h-64 text-forest-600/[0.07] tree-left hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
-        <polygon points="30,0 12,42 48,42"/>
-        <polygon points="30,28 8,68 52,68"/>
-        <polygon points="30,54 4,98 56,98"/>
-        <polygon points="30,82 0,130 60,130"/>
-        <rect x="25" y="128" width="10" height="32" rx="2"/>
-    </svg>
-
-    <!-- Decorative: shorter spruce tree right, partially clipped -->
-    <svg class="absolute top-8 -right-20 w-20 h-44 text-forest-600/[0.05] tree-right hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
-        <polygon points="30,10 14,48 46,48"/>
-        <polygon points="30,36 10,74 50,74"/>
-        <polygon points="30,62 6,106 54,106"/>
-        <polygon points="30,92 2,138 58,138"/>
-        <rect x="25" y="136" width="10" height="24" rx="2"/>
-    </svg>
-
-    <!-- Decorative: two small birds in flight (realistic silhouette) -->
-    <svg class="absolute top-16 right-[38%] w-8 h-4 text-gray-400/30 bird-1 hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
-        <!-- left wing up, right wing up -->
-        <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
-        <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
-    </svg>
-    <svg class="absolute top-24 right-[33%] w-5 h-2.5 text-gray-400/20 bird-2 hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
-        <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
-        <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
-    </svg>
-
-    <!-- Decorative: feathers -->
-    <svg class="absolute bottom-[28%] left-[22%] w-5 h-10 text-amber-500/20 feather-1 hidden lg:block pointer-events-none" viewBox="0 0 20 48" fill="currentColor">
-        <path d="M10,0 C10,0 18,8 18,20 C18,32 14,40 10,48 C10,48 10,40 8,32 C6,24 2,16 2,8 C2,4 6,0 10,0 Z"/>
-        <line x1="10" y1="0" x2="10" y2="48" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
-    </svg>
-    <svg class="absolute top-[35%] right-16 w-4 h-8 text-amber-500/15 feather-2 hidden lg:block pointer-events-none" viewBox="0 0 20 48" fill="currentColor">
-        <path d="M10,0 C10,0 18,8 18,20 C18,32 14,40 10,48 C10,48 10,40 8,32 C6,24 2,16 2,8 C2,4 6,0 10,0 Z"/>
-        <line x1="10" y1="0" x2="10" y2="48" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
-    </svg>
+<div class="py-12 sm:py-20">
 
     <!-- Greeting -->
-    <div class="mb-10 relative z-10">
+    <div class="mb-14">
         <h1 class="font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
             Hey, where are<br>we hiking next?
         </h1>
@@ -89,35 +32,44 @@
         </div>
     </div>
 
-    <!-- Quick-access cards -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <a href="/hikes" class="group bg-white rounded-2xl p-5 ring-1 ring-sand-200 shadow-sm hover:shadow-md hover:ring-forest-200 transition-all flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-forest-100 text-forest-600 flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+    <!-- Quick-access cards with improved styling -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <a href="/hikes" class="card-hover group bg-white rounded-2xl p-7 ring-1 ring-sand-200 shadow-sm flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-forest-100 to-forest-50 text-forest-700 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                </div>
+                <svg class="w-5 h-5 text-forest-400 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
             </div>
             <div>
-                <h3 class="font-display font-bold text-sm text-gray-900 group-hover:text-forest-700 transition-colors">All hikes</h3>
-                <p class="mt-0.5 text-xs text-gray-400 leading-relaxed">Browse the full list with map thumbnails</p>
+                <h3 class="font-display font-bold text-base text-gray-900">All hikes</h3>
+                <p class="mt-1 text-sm text-gray-500">Browse the full list with map previews</p>
             </div>
         </a>
 
-        <a href="/hikes/map" class="group bg-white rounded-2xl p-5 ring-1 ring-sand-200 shadow-sm hover:shadow-md hover:ring-forest-200 transition-all flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-forest-100 text-forest-600 flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+        <a href="/hikes/map" class="card-hover group bg-white rounded-2xl p-7 ring-1 ring-sand-200 shadow-sm flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-forest-100 to-forest-50 text-forest-700 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+                </div>
+                <svg class="w-5 h-5 text-forest-400 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
             </div>
             <div>
-                <h3 class="font-display font-bold text-sm text-gray-900 group-hover:text-forest-700 transition-colors">Map view</h3>
-                <p class="mt-0.5 text-xs text-gray-400 leading-relaxed">See all trails plotted on an interactive map</p>
+                <h3 class="font-display font-bold text-base text-gray-900">Map view</h3>
+                <p class="mt-1 text-sm text-gray-500">See all trails on an interactive map</p>
             </div>
         </a>
 
-        <a href="/hikes/new" class="group bg-white rounded-2xl p-5 ring-1 ring-sand-200 shadow-sm hover:shadow-md hover:ring-forest-200 transition-all flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-sand-100 text-sand-600 flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <a href="/hikes/new" class="card-hover group bg-gradient-to-br from-forest-50 to-forest-100 rounded-2xl p-7 ring-1 ring-forest-200 shadow-sm flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-forest-200 to-forest-100 text-forest-800 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                </div>
+                <svg class="w-5 h-5 text-forest-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
             </div>
             <div>
-                <h3 class="font-display font-bold text-sm text-gray-900 group-hover:text-forest-700 transition-colors">Add a hike</h3>
-                <p class="mt-0.5 text-xs text-gray-400 leading-relaxed">Paste a Mapy.com link or upload a GPX file</p>
+                <h3 class="font-display font-bold text-base text-gray-900">Add a hike</h3>
+                <p class="mt-1 text-sm text-gray-500">Quickly log a new trail adventure</p>
             </div>
         </a>
     </div>

@@ -13,50 +13,10 @@
     .filter-chip.inactive:hover { background: #f8faf7; color: #666; }
     .filter-chip.active { background: #2d7e41; color: white; border-color: #2d7e41; }
 
-    .tree-sway   { animation: nat-sway 5s ease-in-out infinite; transform-origin: bottom center; }
-    .tree-sway-2 { animation: nat-sway 4.5s ease-in-out infinite 1s; transform-origin: bottom center; }
-    .bird-fly    { animation: nat-fly 8s ease-in-out infinite; }
-    .bird-fly-2  { animation: nat-fly 6s ease-in-out infinite 1.2s; }
-    .feather-drift { animation: nat-drift 5s ease-in-out infinite; }
-    @keyframes nat-sway  { 0%,100%{transform:rotate(0deg)} 30%{transform:rotate(1.5deg)} 70%{transform:rotate(-1deg)} }
-    @keyframes nat-fly   { 0%,100%{transform:translate(0,0)} 40%{transform:translate(12px,-7px)} 70%{transform:translate(24px,-3px)} }
-    @keyframes nat-drift { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(6px) rotate(-12deg)} }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Decorative background elements -->
-<!-- Tall spruce left -->
-<svg class="absolute -top-4 -left-24 w-20 h-52 text-forest-700/[0.06] tree-sway hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
-    <polygon points="30,0 12,42 48,42"/>
-    <polygon points="30,28 8,68 52,68"/>
-    <polygon points="30,54 4,98 56,98"/>
-    <polygon points="30,82 0,130 60,130"/>
-    <rect x="25" y="128" width="10" height="32" rx="2"/>
-</svg>
-<!-- Shorter spruce right -->
-<svg class="absolute top-12 -right-20 w-16 h-40 text-forest-700/[0.05] tree-sway-2 hidden lg:block pointer-events-none" viewBox="0 0 60 160" fill="currentColor">
-    <polygon points="30,10 14,48 46,48"/>
-    <polygon points="30,36 10,74 50,74"/>
-    <polygon points="30,62 6,106 54,106"/>
-    <polygon points="30,92 2,138 58,138"/>
-    <rect x="25" y="136" width="10" height="24" rx="2"/>
-</svg>
-<!-- Two birds in flight -->
-<svg class="absolute top-28 right-[28%] w-7 h-3.5 text-gray-500/25 bird-fly hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
-    <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
-    <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
-</svg>
-<svg class="absolute top-36 right-[24%] w-5 h-2.5 text-gray-500/15 bird-fly-2 hidden lg:block pointer-events-none" viewBox="0 0 32 16" fill="currentColor">
-    <path d="M16,8 C14,4 8,1 2,4 C6,6 10,6 16,8 Z"/>
-    <path d="M16,8 C18,4 24,1 30,4 C26,6 22,6 16,8 Z"/>
-</svg>
-<!-- Feather -->
-<svg class="absolute bottom-[30%] left-[30%] w-4 h-9 text-amber-600/15 feather-drift hidden lg:block pointer-events-none" viewBox="0 0 20 48" fill="currentColor">
-    <path d="M10,0 C10,0 18,8 18,20 C18,32 14,40 10,48 C10,48 10,40 8,32 C6,24 2,16 2,8 C2,4 6,0 10,0 Z"/>
-    <line x1="10" y1="2" x2="10" y2="46" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
-</svg>
-
 <!-- Header -->
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 relative z-10">
     <div>
