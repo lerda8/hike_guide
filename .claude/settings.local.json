@@ -11,7 +11,8 @@
       "Bash(git push:*)",
       "Bash(gh pr create --title \"Improve UI/UX and fix thumbnail generation\" --body \"$\\(cat <<''EOF''\n## Summary\n\n- **Dev Mode**: Added purple dev banner showing logged-in user status\n- **UI Enhancements**: Improved navbar styling, active link highlighting, and card layouts\n- **Custom Modals**: Replaced browser confirm dialog with custom delete confirmation modal\n- **Thumbnail Fix**: Fixed static map generation for hikes with start/end coordinates\n\n## Details\n\n### UI/UX Improvements\n- Increased navbar height and logo size for better visibility\n- Implemented active nav link highlighting based on current route\n- Enhanced hike list cards with status badges \\(Done/Planned\\) and location names\n- Improved detail page layout with status display and location information\n- Added form submit loading state with spinner animation\n- Refined all hikes map styling with better sidebar card design\n\n### Technical Fix\nFixed thumbnail generation by improving the `mapy_static_map` endpoint with intelligent bounds calculation:\n- Uses full route geometry when available \\(multiple waypoints\\)\n- Falls back to start+end point bounds for simple routes  \n- Creates padded box around single start point as last resort\n\nThis ensures thumbnails load for all hike types while maintaining compatibility with detail pages that use interactive Leaflet maps.\n\n## Test Plan\n\n- [x] Create hike from Mapy.com URL with full route\n- [x] Create hike from Mapy.com URL with just location\n- [x] Verify thumbnails load in list view\n- [x] Verify detail page renders correctly\n- [x] Test delete confirmation modal \\(open, close, escape key\\)\n- [x] Verify all nav links highlight correctly\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")",
       "Bash(where:*)",
-      "Bash(python -m py_compile:*)"
+      "Bash(python -m py_compile:*)",
+      "Bash(python:*)"
     ]
   }
 }

@@ -136,8 +136,9 @@
             <div class="mb-5">
                 <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Tags</label>
                 <div class="flex flex-wrap gap-2">
+                    {% set selected_tags = filters.tags.split(',') if filters.tags else [] %}
                     {% for tag in all_tags %}
-                    <button type="button" class="filter-chip {% if tag.name in filters.tags %}active{% else %}inactive{% endif %}" data-filter="tag" data-value="{{ tag.name }}">{{ tag.name }}</button>
+                    <button type="button" class="filter-chip {% if tag.name in selected_tags %}active{% else %}inactive{% endif %}" data-filter="tag" data-value="{{ tag.name }}">{{ tag.name }}</button>
                     {% endfor %}
                 </div>
                 <input type="hidden" name="tags" value="{{ filters.tags }}">
@@ -149,7 +150,8 @@
     </div>
 
     <!-- Grid (right, 4/5) -->
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="lg:col-span-4">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {% for hike in hikes %}
     <a href="/hikes/{{ hike.id }}" class="group block bg-white rounded-2xl overflow-hidden ring-1 ring-sand-200 shadow-sm hover:shadow-lg hover:ring-forest-300 transition-all duration-200">
         <!-- Map thumbnail with skeleton -->
