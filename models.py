@@ -32,7 +32,6 @@ class Hike(SQLModel, table=True):
     distance: float = 0.0 # in km
     elevation_gain: int = 0 # in meters
     difficulty: str = "Medium" # Easy, Medium, Hard
-    status: str = "Planned" # Planned, Completed
     start_name: Optional[str] = None
     end_name: Optional[str] = None
     start_lon: Optional[float] = None

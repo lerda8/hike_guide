@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response, JSONResp
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select, func
 from database import get_session
-from models import Hike, User, Photo, Route, Rating, Tag, HikeTag
+from models import Hike, User, Photo, Route, Rating
 import shutil
 import os
 import uuid
@@ -53,87 +53,46 @@ async def list_hikes(
     request: Request,
     session: Session = Depends(get_session),
     # Filters
-    status: str = Query("all"),  # all, planned, completed
-    difficulty: str = Query("all"),  # all, easy, medium, hard
     min_distance: float = Query(0),
     max_distance: float = Query(1000),
     min_elevation: int = Query(0),
     max_elevation: int = Query(10000),
-    min_rating: float = Query(0),
     country: str = Query(""),
-    tags: str = Query(""),  # comma-separated tag names
-    sort: str = Query("newest"),  # newest, distance, elevation, difficulty, rating
+    sort: str = Query("newest"),  # newest, distance, elevation
 ):
     query = select(Hike)
 
     # Apply filters
-    if status == "planned":
-        query = query.where(Hike.status == "Planned")
-    elif status == "completed":
-        query = query.where(Hike.status == "Completed")
-
-    if difficulty != "all":
-        query = query.where(Hike.difficulty == difficulty.capitalize())
-
     query = query.where(Hike.distance >= min_distance).where(Hike.distance <= max_distance)
     query = query.where(Hike.elevation_gain >= min_elevation).where(Hike.elevation_gain <= max_elevation)
 
     if country:
         query = query.where(Hike.country == country)
 
-    # Apply rating filter (requires join with ratings)
-    if min_rating > 0:
-        # Subquery: hikes with avg rating >= min_rating
-        rating_subq = select(Hike.id).join(Rating).group_by(Hike.id).having(func.avg(Rating.rating) >= min_rating)
-        query = query.where(Hike.id.in_(rating_subq))
-
-    # Apply tag filter
-    if tags:
-        tag_list = [t.strip() for t in tags.split(",") if t.strip()]
-        for tag_name in tag_list:
-            tag = session.exec(select(Tag).where(Tag.name == tag_name)).first()
-            if tag:
-                tag_hike_ids = session.exec(select(HikeTag.hike_id).where(HikeTag.tag_id == tag.id)).all()
-                query = query.where(Hike.id.in_(tag_hike_ids))
-
     # Apply sorting
     if sort == "distance":
         query = query.order_by(Hike.distance)
     elif sort == "elevation":
         query = query.order_by(Hike.elevation_gain.desc())
-    elif sort == "difficulty":
-        # Easy < Medium < Hard
-        difficulty_order = {"Easy": 1, "Medium": 2, "Hard": 3}
-        query = query.order_by(Hike.difficulty)
-    elif sort == "rating":
-        rating_subq = select(Hike.id, func.avg(Rating.rating).label("avg_rating")).join(Rating, isouter=True).group_by(Hike.id)
-        # This is complex; for now just sort by newest
-        query = query.order_by(Hike.created_at.desc())
-    else:  # newest
+    else:  # newest (default)
         query = query.order_by(Hike.created_at.desc())
 
     hikes = session.exec(query).all()
 
-    # Get all countries and tags for filter UI
+    # Get all countries for filter UI
     all_countries = session.exec(select(Hike.country).distinct()).all()
     all_countries = sorted([c for c in all_countries if c])
-    all_tags = session.exec(select(Tag)).all()
 
     return templates.TemplateResponse("hikes/list.html", {
         "request": request,
         "hikes": hikes,
         "all_countries": all_countries,
-        "all_tags": all_tags,
         "filters": {
-            "status": status,
-            "difficulty": difficulty,
             "min_distance": min_distance,
             "max_distance": max_distance,
             "min_elevation": min_elevation,
             "max_elevation": max_elevation,
-            "min_rating": min_rating,
             "country": country,
-            "tags": tags,
             "sort": sort,
         },
     })
@@ -323,7 +282,6 @@ async def create_hike(
     route_type: str = Form("foot_hiking"),
     mapset: str = Form("outdoor"),
     country: str = Form(None),
-    tags: str = Form(None),
     mapy_url: str = Form(None),
     gpx_file: UploadFile = File(None),
     session: Session = Depends(get_session)
@@ -412,22 +370,6 @@ async def create_hike(
     session.add(hike)
     session.commit()
     session.refresh(hike)
-
-    # ── Add tags ───────────────────────────────────────────────────────────
-    if tags:
-        tag_names = [t.strip() for t in tags.split(",") if t.strip()]
-        for tag_name in tag_names:
-            # Get or create tag
-            tag = session.exec(select(Tag).where(Tag.name == tag_name)).first()
-            if not tag:
-                tag = Tag(name=tag_name)
-                session.add(tag)
-                session.commit()
-                session.refresh(tag)
-            # Link tag to hike
-            hike_tag = HikeTag(hike_id=hike.id, tag_id=tag.id)
-            session.add(hike_tag)
-        session.commit()
 
     route_geojson = None
     route_length_m = None

@@ -50,31 +50,7 @@
                     <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest</option>
                     <option value="distance" {% if filters.sort == 'distance' %}selected{% endif %}>Distance</option>
                     <option value="elevation" {% if filters.sort == 'elevation' %}selected{% endif %}>Elevation</option>
-                    <option value="rating" {% if filters.sort == 'rating' %}selected{% endif %}>Rating</option>
                 </select>
-            </div>
-
-            <!-- Status -->
-            <div class="mb-5 pb-4 border-b border-sand-100">
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Status</label>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" class="filter-chip {% if filters.status == 'all' %}active{% else %}inactive{% endif %}" data-filter="status" data-value="all">All</button>
-                    <button type="button" class="filter-chip {% if filters.status == 'planned' %}active{% else %}inactive{% endif %}" data-filter="status" data-value="planned">Planned</button>
-                    <button type="button" class="filter-chip {% if filters.status == 'completed' %}active{% else %}inactive{% endif %}" data-filter="status" data-value="completed">Done</button>
-                </div>
-                <input type="hidden" name="status" value="{{ filters.status }}">
-            </div>
-
-            <!-- Difficulty -->
-            <div class="mb-5 pb-4 border-b border-sand-100">
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Difficulty</label>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" class="filter-chip {% if filters.difficulty == 'all' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="all">All</button>
-                    <button type="button" class="filter-chip {% if filters.difficulty == 'easy' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="easy">Easy</button>
-                    <button type="button" class="filter-chip {% if filters.difficulty == 'medium' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="medium">Medium</button>
-                    <button type="button" class="filter-chip {% if filters.difficulty == 'hard' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="hard">Hard</button>
-                </div>
-                <input type="hidden" name="difficulty" value="{{ filters.difficulty }}">
             </div>
 
             <!-- Distance Range -->
@@ -107,17 +83,6 @@
                 </div>
             </div>
 
-            <!-- Rating -->
-            <div class="mb-5 pb-4 border-b border-sand-100">
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Min Rating</label>
-                <div class="flex gap-1">
-                    {% for i in range(1, 6) %}
-                    <button type="button" class="filter-chip {% if i <= filters.min_rating %}active{% else %}inactive{% endif %}" data-filter="rating" data-value="{{ i }}">{{ i }}★</button>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="min_rating" value="{{ filters.min_rating }}">
-            </div>
-
             <!-- Country -->
             {% if all_countries %}
             <div class="mb-5 pb-4 border-b border-sand-100">
@@ -128,20 +93,6 @@
                     <option value="{{ c }}" {% if filters.country == c %}selected{% endif %}>{{ c }}</option>
                     {% endfor %}
                 </select>
-            </div>
-            {% endif %}
-
-            <!-- Tags -->
-            {% if all_tags %}
-            <div class="mb-5">
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Tags</label>
-                <div class="flex flex-wrap gap-2">
-                    {% set selected_tags = filters.tags.split(',') if filters.tags else [] %}
-                    {% for tag in all_tags %}
-                    <button type="button" class="filter-chip {% if tag.name in selected_tags %}active{% else %}inactive{% endif %}" data-filter="tag" data-value="{{ tag.name }}">{{ tag.name }}</button>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="tags" value="{{ filters.tags }}">
             </div>
             {% endif %}
 
@@ -182,14 +133,6 @@
         <div class="p-5">
             <div class="flex items-start justify-between gap-2">
                 <h3 class="font-display font-bold text-lg text-gray-900 group-hover:text-forest-600 transition-colors leading-tight">{{ hike.title }}</h3>
-                {% if hike.status == 'Completed' %}
-                <span class="flex-shrink-0 inline-flex items-center gap-1 rounded-full bg-forest-100 px-2 py-0.5 text-xs font-semibold text-forest-700">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                    Done
-                </span>
-                {% else %}
-                <span class="flex-shrink-0 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">Planned</span>
-                {% endif %}
             </div>
             {% if hike.start_name or hike.end_name %}
             <p class="mt-1 text-xs text-gray-400 truncate">
@@ -231,14 +174,10 @@
 
 <script>
     const form = document.getElementById('filter-form');
-    const statusInput = form.querySelector('input[name="status"]');
-    const difficultyInput = form.querySelector('input[name="difficulty"]');
     const minDistanceInput = form.querySelector('#min-distance');
     const maxDistanceInput = form.querySelector('#max-distance');
     const minElevationInput = form.querySelector('#min-elevation');
     const maxElevationInput = form.querySelector('#max-elevation');
-    const ratingInput = form.querySelector('input[name="min_rating"]');
-    const tagsInput = form.querySelector('input[name="tags"]');
     const sortSelect = form.querySelector('#sort-select');
     const countrySelect = form.querySelector('#country-select');
 
@@ -254,44 +193,6 @@
     });
     maxElevationInput.addEventListener('input', (e) => {
         document.getElementById('max-elevation-val').textContent = e.target.value;
-    });
-
-    // Filter chip handlers
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', function(e) {
-            e.preventDefault();
-            const filter = this.dataset.filter;
-            const value = this.dataset.value;
-
-            // Toggle chip state
-            const isActive = this.classList.contains('active');
-            const chips = document.querySelectorAll(`.filter-chip[data-filter="${filter}"]`);
-
-            if (filter === 'status') {
-                chips.forEach(c => c.classList.remove('active'));
-                if (!isActive) this.classList.add('active');
-                statusInput.value = isActive ? 'all' : value;
-            } else if (filter === 'difficulty') {
-                chips.forEach(c => c.classList.remove('active'));
-                if (!isActive) this.classList.add('active');
-                difficultyInput.value = isActive ? 'all' : value;
-            } else if (filter === 'rating') {
-                if (isActive) {
-                    this.classList.remove('active');
-                    ratingInput.value = '0';
-                } else {
-                    chips.forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    ratingInput.value = value;
-                }
-            } else if (filter === 'tag') {
-                this.classList.toggle('active');
-                const selected = Array.from(document.querySelectorAll('.filter-chip[data-filter="tag"].active'))
-                    .map(c => c.dataset.value)
-                    .join(',');
-                tagsInput.value = selected;
-            }
-        });
     });
 
     // Auto-submit on range changes
