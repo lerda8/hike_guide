@@ -6,14 +6,20 @@
 <style>
     .skeleton-pulse { animation: skeleton-fade 1.5s ease-in-out infinite; }
     @keyframes skeleton-fade { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+    #filter-sidebar { max-height: calc(100vh - 140px); overflow-y: auto; }
+    .filter-chip { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 99px; font-size: 0.8125rem; font-weight: 500; border: 1px solid; cursor: pointer; transition: all 0.2s; }
+    .filter-chip.inactive { background: white; color: #999; border-color: #e5e1da; }
+    .filter-chip.inactive:hover { background: #f8faf7; color: #666; }
+    .filter-chip.active { background: #2d7e41; color: white; border-color: #2d7e41; }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Header -->
-<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
     <div>
-        <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">All Hikes</h1>
+        <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900">All Hikes</h1>
         <p class="mt-1 text-sm text-gray-500">Browse trails, plan your next adventure</p>
     </div>
     <div class="flex items-center gap-2">
@@ -23,14 +29,126 @@
             Map
         </a>
         <a href="/hikes/new"
-           class="inline-flex items-center gap-2 rounded-xl bg-forest-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-forest-700 transition-colors">
+           class="inline-flex items-center gap-2 rounded-xl bg-forest-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-forest-700 transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
             Add Hike
         </a>
     </div>
 </div>
 
-<!-- Grid -->
+<!-- Filters + Grid Container -->
+<div class="lg:grid lg:grid-cols-5 lg:gap-6">
+    <!-- Sidebar Filters (left, 1/5) -->
+    <div class="lg:col-span-1 mb-6 lg:mb-0">
+        <form id="filter-form" class="bg-white rounded-2xl ring-1 ring-sand-200 shadow-sm p-5" style="position: sticky; top: 80px;">
+            <h2 class="font-display font-bold text-sm text-gray-900 mb-4">Filters</h2>
+
+            <!-- Sort -->
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Sort</label>
+                <select name="sort" id="sort-select" class="block w-full rounded-lg border-0 py-2 px-2.5 text-sm ring-1 ring-sand-300 focus:ring-2 focus:ring-forest-500 bg-white">
+                    <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="distance" {% if filters.sort == 'distance' %}selected{% endif %}>Distance</option>
+                    <option value="elevation" {% if filters.sort == 'elevation' %}selected{% endif %}>Elevation</option>
+                    <option value="rating" {% if filters.sort == 'rating' %}selected{% endif %}>Rating</option>
+                </select>
+            </div>
+
+            <!-- Status -->
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Status</label>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="filter-chip {% if filters.status == 'all' %}active{% else %}inactive{% endif %}" data-filter="status" data-value="all">All</button>
+                    <button type="button" class="filter-chip {% if filters.status == 'planned' %}active{% else %}inactive{% endif %}" data-filter="status" data-value="planned">Planned</button>
+                    <button type="button" class="filter-chip {% if filters.status == 'completed' %}active{% else %}inactive{% endif %}" data-filter="status" data-value="completed">Done</button>
+                </div>
+                <input type="hidden" name="status" value="{{ filters.status }}">
+            </div>
+
+            <!-- Difficulty -->
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Difficulty</label>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="filter-chip {% if filters.difficulty == 'all' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="all">All</button>
+                    <button type="button" class="filter-chip {% if filters.difficulty == 'easy' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="easy">Easy</button>
+                    <button type="button" class="filter-chip {% if filters.difficulty == 'medium' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="medium">Medium</button>
+                    <button type="button" class="filter-chip {% if filters.difficulty == 'hard' %}active{% else %}inactive{% endif %}" data-filter="difficulty" data-value="hard">Hard</button>
+                </div>
+                <input type="hidden" name="difficulty" value="{{ filters.difficulty }}">
+            </div>
+
+            <!-- Distance Range -->
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Distance</label>
+                <div class="space-y-2">
+                    <div>
+                        <input type="range" name="min_distance" id="min-distance" min="0" max="100" value="{{ filters.min_distance }}" class="w-full">
+                        <div class="text-xs text-gray-500">Min: <span id="min-distance-val">{{ filters.min_distance }}</span> km</div>
+                    </div>
+                    <div>
+                        <input type="range" name="max_distance" id="max-distance" min="0" max="100" value="{{ filters.max_distance }}" class="w-full">
+                        <div class="text-xs text-gray-500">Max: <span id="max-distance-val">{{ filters.max_distance }}</span> km</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Elevation Gain Range -->
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Elevation</label>
+                <div class="space-y-2">
+                    <div>
+                        <input type="range" name="min_elevation" id="min-elevation" min="0" max="3000" value="{{ filters.min_elevation }}" class="w-full">
+                        <div class="text-xs text-gray-500">Min: <span id="min-elevation-val">{{ filters.min_elevation }}</span> m</div>
+                    </div>
+                    <div>
+                        <input type="range" name="max_elevation" id="max-elevation" min="0" max="3000" value="{{ filters.max_elevation }}" class="w-full">
+                        <div class="text-xs text-gray-500">Max: <span id="max-elevation-val">{{ filters.max_elevation }}</span> m</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Min Rating</label>
+                <div class="flex gap-1">
+                    {% for i in range(1, 6) %}
+                    <button type="button" class="filter-chip {% if i <= filters.min_rating %}active{% else %}inactive{% endif %}" data-filter="rating" data-value="{{ i }}">{{ i }}★</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="min_rating" value="{{ filters.min_rating }}">
+            </div>
+
+            <!-- Country -->
+            {% if all_countries %}
+            <div class="mb-5 pb-4 border-b border-sand-100">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Country</label>
+                <select name="country" id="country-select" class="block w-full rounded-lg border-0 py-2 px-2.5 text-sm ring-1 ring-sand-300 focus:ring-2 focus:ring-forest-500 bg-white">
+                    <option value="">All countries</option>
+                    {% for c in all_countries %}
+                    <option value="{{ c }}" {% if filters.country == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <!-- Tags -->
+            {% if all_tags %}
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Tags</label>
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in all_tags %}
+                    <button type="button" class="filter-chip {% if tag.name in filters.tags %}active{% else %}inactive{% endif %}" data-filter="tag" data-value="{{ tag.name }}">{{ tag.name }}</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="tags" value="{{ filters.tags }}">
+            </div>
+            {% endif %}
+
+            <button type="submit" class="w-full rounded-lg bg-forest-600 px-3 py-2 text-sm font-bold text-white hover:bg-forest-700 transition-colors">Apply Filters</button>
+        </form>
+    </div>
+
+    <!-- Grid (right, 4/5) -->
 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {% for hike in hikes %}
     <a href="/hikes/{{ hike.id }}" class="group block bg-white rounded-2xl overflow-hidden ring-1 ring-sand-200 shadow-sm hover:shadow-lg hover:ring-forest-300 transition-all duration-200">
@@ -104,6 +222,79 @@
             Add Your First Hike
         </a>
     </div>
-    {% endfor %}
+        {% endfor %}
+        </div>
+    </div>
 </div>
+
+<script>
+    const form = document.getElementById('filter-form');
+    const statusInput = form.querySelector('input[name="status"]');
+    const difficultyInput = form.querySelector('input[name="difficulty"]');
+    const minDistanceInput = form.querySelector('#min-distance');
+    const maxDistanceInput = form.querySelector('#max-distance');
+    const minElevationInput = form.querySelector('#min-elevation');
+    const maxElevationInput = form.querySelector('#max-elevation');
+    const ratingInput = form.querySelector('input[name="min_rating"]');
+    const tagsInput = form.querySelector('input[name="tags"]');
+    const sortSelect = form.querySelector('#sort-select');
+    const countrySelect = form.querySelector('#country-select');
+
+    // Range value display updates
+    minDistanceInput.addEventListener('input', (e) => {
+        document.getElementById('min-distance-val').textContent = e.target.value;
+    });
+    maxDistanceInput.addEventListener('input', (e) => {
+        document.getElementById('max-distance-val').textContent = e.target.value;
+    });
+    minElevationInput.addEventListener('input', (e) => {
+        document.getElementById('min-elevation-val').textContent = e.target.value;
+    });
+    maxElevationInput.addEventListener('input', (e) => {
+        document.getElementById('max-elevation-val').textContent = e.target.value;
+    });
+
+    // Filter chip handlers
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filter = this.dataset.filter;
+            const value = this.dataset.value;
+
+            // Toggle chip state
+            const isActive = this.classList.contains('active');
+            const chips = document.querySelectorAll(`.filter-chip[data-filter="${filter}"]`);
+
+            if (filter === 'status') {
+                chips.forEach(c => c.classList.remove('active'));
+                if (!isActive) this.classList.add('active');
+                statusInput.value = isActive ? 'all' : value;
+            } else if (filter === 'difficulty') {
+                chips.forEach(c => c.classList.remove('active'));
+                if (!isActive) this.classList.add('active');
+                difficultyInput.value = isActive ? 'all' : value;
+            } else if (filter === 'rating') {
+                if (isActive) {
+                    this.classList.remove('active');
+                    ratingInput.value = '0';
+                } else {
+                    chips.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    ratingInput.value = value;
+                }
+            } else if (filter === 'tag') {
+                this.classList.toggle('active');
+                const selected = Array.from(document.querySelectorAll('.filter-chip[data-filter="tag"].active'))
+                    .map(c => c.dataset.value)
+                    .join(',');
+                tagsInput.value = selected;
+            }
+        });
+    });
+
+    // Auto-submit on range changes
+    [minDistanceInput, maxDistanceInput, minElevationInput, maxElevationInput, sortSelect, countrySelect].forEach(el => {
+        if (el) el.addEventListener('change', () => form.submit());
+    });
+</script>
 {% endblock %}

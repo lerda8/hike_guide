@@ -2,6 +2,19 @@ from typing import Optional, List
 from datetime import datetime
 from sqlmodel import Field, SQLModel, Relationship
 
+class Tag(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True)
+
+    hike_tags: List["HikeTag"] = Relationship(back_populates="tag")
+
+class HikeTag(SQLModel, table=True):
+    hike_id: int = Field(foreign_key="hike.id", primary_key=True)
+    tag_id: int = Field(foreign_key="tag.id", primary_key=True)
+
+    hike: "Hike" = Relationship(back_populates="hike_tags")
+    tag: Tag = Relationship(back_populates="hike_tags")
+
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(index=True, unique=True)
@@ -29,6 +42,7 @@ class Hike(SQLModel, table=True):
     mapy_url: Optional[str] = None
     route_type: str = "foot_hiking"
     mapset: str = "outdoor"
+    country: Optional[str] = None # e.g. "Czech Republic", "Poland"
     created_by: int = Field(foreign_key="user.id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -36,6 +50,7 @@ class Hike(SQLModel, table=True):
     routes: List["Route"] = Relationship(back_populates="hike")
     photos: List["Photo"] = Relationship(back_populates="hike")
     ratings: List["Rating"] = Relationship(back_populates="hike")
+    hike_tags: List["HikeTag"] = Relationship(back_populates="hike")
 
 class Route(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
