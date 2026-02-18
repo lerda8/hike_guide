@@ -3,158 +3,533 @@
 {% block title %}{{ hike.title }} - Hike Guide{% endblock %}
 
 {% block content %}
-<div class="mb-6">
-    <a href="/hikes" class="text-sm font-medium text-green-600 hover:text-green-500">&larr; Back to all hikes</a>
+<!-- Breadcrumb & actions -->
+<div class="mb-6 flex items-center justify-between">
+    <a href="/hikes" class="inline-flex items-center gap-1.5 text-sm font-medium text-forest-600 hover:text-forest-800 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+        All hikes
+    </a>
+    <form action="/hikes/{{ hike.id }}/delete" method="POST"
+          onsubmit="return confirm('Are you sure you want to delete this hike? This cannot be undone.')">
+        <button type="submit"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-100 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+            Delete
+        </button>
+    </form>
 </div>
 
-<div class="lg:grid lg:grid-cols-2 lg:gap-x-8">
-    <!-- Hike Info -->
-    <div>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ hike.title }}</h1>
-        <div class="mt-4 flex items-center gap-x-4 text-sm text-gray-500">
-            <span>{{ hike.distance }} km</span>
-            <span>&bull;</span>
-            <span>{{ hike.elevation_gain }}m elevation</span>
-            <span>&bull;</span>
-            <span
-                class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{
-                hike.difficulty }}</span>
+<!-- Title section -->
+<div class="mb-8">
+    <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">{{ hike.title }}</h1>
+    <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        {% if hike.distance %}
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-forest-50 px-3 py-1 text-forest-700 ring-1 ring-forest-200 font-medium">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.115 5.19l.319 1.913A6 6 0 008.11 10.36L9.75 12l-.387.775c-.217.433-.132.956.21 1.298l1.348 1.348c.21.21.329.497.329.795v1.089c0 .426.24.815.622 1.006l.153.076c.433.217.956.132 1.298-.21l.723-.723a8.7 8.7 0 002.288-4.042 1.087 1.087 0 00-.358-1.099l-1.33-1.108c-.251-.209-.553-.34-.874-.386l-1.532-.256a4 4 0 01-.837-.225L9.38 8.798a.75.75 0 01-.143-1.218l3.028-2.69a.75.75 0 01.587-.208l2.318.231a3.75 3.75 0 002.898-.91L19.5 2.85"/></svg>
+            {{ hike.distance }} km
+        </span>
+        {% endif %}
+        {% if hike.elevation_gain %}
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-sand-100 px-3 py-1 text-sand-700 ring-1 ring-sand-200 font-medium">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+            {{ hike.elevation_gain }}m gain
+        </span>
+        {% endif %}
+        {% if estimated_time %}
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-blue-700 ring-1 ring-blue-200 font-medium">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            {{ estimated_time }}
+        </span>
+        {% endif %}
+        {% if hike.difficulty %}
+        <span class="inline-flex items-center rounded-full px-3 py-1 font-bold text-xs
+            {% if hike.difficulty == 'Easy' %}bg-green-100 text-green-700 ring-1 ring-green-200
+            {% elif hike.difficulty == 'Hard' %}bg-red-100 text-red-700 ring-1 ring-red-200
+            {% else %}bg-amber-100 text-amber-700 ring-1 ring-amber-200{% endif %}">
+            {{ hike.difficulty }}
+        </span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="lg:grid lg:grid-cols-5 lg:gap-8">
+    <!-- Left column: info, photos, ratings (3/5 width) -->
+    <div class="lg:col-span-3 space-y-8">
+
+        <!-- Description -->
+        {% if hike.description %}
+        <div class="bg-white rounded-2xl p-6 ring-1 ring-sand-200 shadow-sm">
+            <h2 class="font-display font-bold text-lg text-gray-900 mb-3">Description</h2>
+            <p class="text-gray-600 leading-relaxed">{{ hike.description }}</p>
         </div>
+        {% endif %}
 
-        <div class="mt-6 space-y-6 text-base text-gray-700">
-            <p>{{ hike.description or "No description provided." }}</p>
+        <!-- Mapy.com links & share -->
+        {% if mapy_route_url %}
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ mapy_route_url }}" target="_blank"
+               class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-forest-700 ring-1 ring-forest-200 hover:bg-forest-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+                Open route in Mapy.cz
+            </a>
+            <button onclick="shareHike()" type="button"
+                    class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-600 ring-1 ring-sand-200 hover:bg-sand-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+                <span id="share-text">Copy link</span>
+            </button>
         </div>
+        {% else %}
+        <div class="flex flex-wrap gap-3">
+            <button onclick="shareHike()" type="button"
+                    class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-600 ring-1 ring-sand-200 hover:bg-sand-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+                <span id="share-text">Copy link</span>
+            </button>
+        </div>
+        {% endif %}
 
-        <div class="mt-10 border-t border-gray-200 pt-10">
-            <h3 class="text-lg font-medium text-gray-900">Photos</h3>
+        <!-- Photos -->
+        <div class="bg-white rounded-2xl p-6 ring-1 ring-sand-200 shadow-sm">
+            <h2 class="font-display font-bold text-lg text-gray-900 mb-4">Photos</h2>
 
-            <!-- Photo Gallery -->
-            <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {% for photo in hike.photos %}
-                <div class="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <div class="relative group aspect-square bg-sand-100 rounded-xl overflow-hidden">
                     <img src="/static/uploads/{{ photo.filename }}" alt="{{ photo.caption or 'Hike photo' }}"
-                        class="object-cover w-full h-full group-hover:opacity-75">
+                         class="object-cover w-full h-full">
                     {% if photo.caption %}
-                    <div
-                        class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
-                        {{ photo.caption }}
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <p class="text-white text-xs truncate">{{ photo.caption }}</p>
                     </div>
                     {% endif %}
                 </div>
                 {% else %}
-                <p class="text-gray-500 col-span-full">No photos yet. Be the first to share one!</p>
+                <p class="text-gray-400 text-sm col-span-full">No photos yet. Be the first to share one!</p>
                 {% endfor %}
             </div>
 
-            <!-- Upload Form -->
-            <form action="/hikes/{{ hike.id }}/photos" method="POST" enctype="multipart/form-data" class="mt-6">
-                <label class="block text-sm font-medium text-gray-700">Add a photo</label>
-                <div class="mt-2 flex items-center gap-x-3">
-                    <input type="file" name="photo_file" accept="image/*" required
-                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none">
-                    <input type="text" name="caption" placeholder="Caption (optional)"
-                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6">
-                    <button type="submit"
-                        class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Upload</button>
+            <!-- Upload -->
+            <form action="/hikes/{{ hike.id }}/photos" method="POST" enctype="multipart/form-data" class="mt-5 pt-5 border-t border-sand-200" id="photo-form">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Add a photo</label>
+                <!-- Preview -->
+                <div id="photo-preview" class="hidden mb-3">
+                    <img id="photo-preview-img" class="w-24 h-24 object-cover rounded-xl ring-1 ring-sand-200" alt="Preview">
                 </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <input type="file" name="photo_file" id="photo-file-input" accept="image/jpeg,image/png,image/webp,image/gif" required
+                           class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-forest-50 file:text-forest-700 file:font-semibold file:text-sm hover:file:bg-forest-100 file:cursor-pointer cursor-pointer">
+                    <input type="text" name="caption" placeholder="Caption (optional)"
+                           class="block w-full rounded-xl border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-sand-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-forest-500 text-sm">
+                    <button type="submit" id="photo-submit-btn"
+                            class="rounded-xl bg-forest-600 px-4 py-2 text-sm font-bold text-white hover:bg-forest-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">Upload</button>
+                </div>
+                <p id="photo-error" class="hidden mt-1.5 text-xs text-red-500 font-medium"></p>
             </form>
+        </div>
 
-            <h3 class="mt-10 text-lg font-medium text-gray-900">Ratings & Reviews</h3>
+        <!-- Ratings & Reviews -->
+        <div class="bg-white rounded-2xl p-6 ring-1 ring-sand-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-display font-bold text-lg text-gray-900">Ratings & Reviews</h2>
+                {% if avg_rating %}
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-0.5">
+                        {% for i in range(1, 6) %}
+                        {% if i <= avg_rating|int %}
+                        <svg class="w-5 h-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        {% elif i - avg_rating < 1 %}
+                        <svg class="w-5 h-5 text-amber-400" viewBox="0 0 20 20"><defs><linearGradient id="half-star"><stop offset="{{ ((avg_rating - avg_rating|int) * 100)|int }}%" stop-color="currentColor"/><stop offset="{{ ((avg_rating - avg_rating|int) * 100)|int }}%" stop-color="#d1d5db"/></linearGradient></defs><path fill="url(#half-star)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        {% else %}
+                        <svg class="w-5 h-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="text-sm font-bold text-gray-900">{{ avg_rating }}</span>
+                    <span class="text-xs text-gray-400">({{ rating_count }})</span>
+                </div>
+                {% endif %}
+            </div>
 
-            <div class="mt-4 space-y-4">
+            <div class="space-y-4">
                 {% for rating in hike.ratings %}
-                <div class="bg-gray-50 rounded-lg p-4">
+                <div class="rounded-xl bg-sand-50 p-4 ring-1 ring-sand-100">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex text-yellow-400">
-                                {% for i in range(rating.rating) %}★{% endfor %}
-                                {% for i in range(5 - rating.rating) %}<span class="text-gray-300">★</span>{% endfor %}
+                        <div class="flex items-center gap-2.5">
+                            <div class="flex items-center gap-0.5">
+                                {% for i in range(1, 6) %}
+                                {% if i <= rating.rating %}
+                                <svg class="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                {% else %}
+                                <svg class="w-4 h-4 text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                {% endif %}
+                                {% endfor %}
                             </div>
-                            <span class="ml-2 text-sm font-medium text-gray-900">{{ rating.user.username }}</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ rating.nickname or rating.user.username }}</span>
                         </div>
-                        <span class="text-sm text-gray-500">{{ rating.created_at.strftime('%Y-%m-%d') }}</span>
+                        <span class="text-xs text-gray-400">{{ rating.created_at.strftime('%Y-%m-%d') }}</span>
                     </div>
                     {% if rating.comment %}
-                    <p class="mt-2 text-sm text-gray-700">{{ rating.comment }}</p>
+                    <p class="mt-2 text-sm text-gray-600">{{ rating.comment }}</p>
                     {% endif %}
                 </div>
                 {% else %}
-                <p class="text-gray-500">No reviews yet.</p>
+                <p class="text-gray-400 text-sm">No reviews yet.</p>
                 {% endfor %}
             </div>
 
-            <!-- Rating Form -->
-            <form action="/hikes/{{ hike.id }}/ratings" method="POST" class="mt-6 bg-gray-50 p-4 rounded-lg">
-                <h4 class="text-sm font-medium text-gray-900">Write a review</h4>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700">Rating</label>
-                    <div class="mt-1 flex items-center space-x-4">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="rating" value="5" checked
-                                class="text-green-600 focus:ring-green-500">
-                            <span class="ml-2 text-sm">5 ★</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="rating" value="4" class="text-green-600 focus:ring-green-500">
-                            <span class="ml-2 text-sm">4 ★</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="rating" value="3" class="text-green-600 focus:ring-green-500">
-                            <span class="ml-2 text-sm">3 ★</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="rating" value="2" class="text-green-600 focus:ring-green-500">
-                            <span class="ml-2 text-sm">2 ★</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="rating" value="1" class="text-green-600 focus:ring-green-500">
-                            <span class="ml-2 text-sm">1 ★</span>
-                        </label>
+            <!-- Rating form -->
+            <form action="/hikes/{{ hike.id }}/ratings" method="POST" class="mt-6 pt-5 border-t border-sand-200">
+                <h3 class="text-sm font-bold text-gray-900 mb-4">Write a review</h3>
+
+                <!-- Username -->
+                <div class="mb-4">
+                    <label for="nickname" class="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
+                    <input type="text" name="nickname" id="nickname" required placeholder="Your username"
+                           class="block w-full rounded-xl border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-sand-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-forest-500 text-sm">
+                </div>
+
+                <!-- Star rating (interactive hover) -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                    <input type="hidden" name="rating" id="rating-value" value="5">
+                    <div class="flex items-center gap-1" id="star-picker">
+                        {% for i in range(1, 6) %}
+                        <button type="button" data-value="{{ i }}"
+                                class="star-btn p-0.5 transition-transform hover:scale-110 focus:outline-none">
+                            <svg class="w-8 h-8 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </button>
+                        {% endfor %}
+                        <span id="star-label" class="ml-2 text-sm font-medium text-gray-500">5 / 5</span>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <label for="comment" class="block text-sm font-medium text-gray-700">Comment</label>
-                    <div class="mt-1">
-                        <textarea id="comment" name="comment" rows="3"
-                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"></textarea>
-                    </div>
+
+                <!-- Comment -->
+                <div class="mb-4">
+                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-1.5">Comment <span class="font-normal text-gray-400">(optional)</span></label>
+                    <textarea id="comment" name="comment" rows="3" placeholder="Share your experience on this trail..."
+                              class="block w-full rounded-xl border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-sand-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-forest-500 text-sm"></textarea>
                 </div>
-                <div class="mt-4 flex justify-end">
+                <div class="flex justify-end">
                     <button type="submit"
-                        class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Submit
-                        Review</button>
+                            class="rounded-xl bg-forest-600 px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-forest-700 transition-colors">Submit Review</button>
                 </div>
             </form>
+        </div>
+    </div>
 
-            <!-- Map Container -->
-            <div class="mt-10 lg:mt-0">
-                <div id="hike-map" class="rounded-lg shadow-inner h-96 border border-gray-200 z-0"></div>
-            </div>
+    <!-- Right column: map & elevation (2/5 width) -->
+    <div class="lg:col-span-2 mt-8 lg:mt-0">
+        <div class="lg:sticky lg:top-16 space-y-6">
+        <!-- Map -->
+        <div class="bg-white rounded-2xl overflow-hidden ring-1 ring-sand-200 shadow-sm">
+            <div id="hike-map" class="h-96 z-0"></div>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Default to Prague/Czechia center
-                var map = L.map('hike-map').setView([49.8175, 15.4730], 7);
+        <!-- Elevation profile -->
+        <div class="bg-white rounded-2xl p-5 ring-1 ring-sand-200 shadow-sm">
+            <h3 class="font-display font-bold text-base text-gray-900 mb-3">Elevation Profile</h3>
+            {% if elevation_profile and elevation_profile|length > 1 %}
+            <canvas id="elevation-chart" height="160"></canvas>
+            {% else %}
+            <p class="text-sm text-gray-400">Upload a GPX or plan a route to see elevation.</p>
+            {% endif %}
+        </div>
+        </div><!-- end sticky wrapper -->
+    </div>
+</div>
 
-                // Mapy.cz Tiles (using generic OSM for now as Mapy.cz requires API key for pure tiles or special config)
-                // Actually, Mapy.cz generic tiles can be accessed via:
-                // https://mapserver.mapy.cz/turist-m/{z}-{x}-{y}
-                // But let's stick to OSM for simplicity first, or OpenTopoMap which looks hike-y.
-                // Using Mapy.cz tourist layer directly (unofficial endpoint, often used):
-                L.tileLayer('https://m{s}.mapserver.mapy.cz/turist-m/{z}-{x}-{y}.png', {
-                    attribution: '&copy; <a href="https://www.seznam.cz" target="_blank">Seznam.cz, a.s.</a>, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-                    maxZoom: 18,
-                    subdomains: '1234'
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Default to Prague/Czechia center
+        var map = L.map('hike-map').setView([49.8175, 15.4730], 7);
+
+        L.tileLayer('{{ tile_url }}', {
+            attribution: '{{ tile_attribution|safe }}',
+            maxZoom: 19
+        }).addTo(map);
+
+        // ── Elevation profile data ────────────────────────────
+        const elevationProfile = {{ elevation_profile | tojson }};
+        const hasElevation = elevationProfile.length > 1;
+
+        // ── Helpers: elevation color gradient ─────────────────
+        function elevColor(elev, minE, maxE) {
+            const t = maxE > minE ? (elev - minE) / (maxE - minE) : 0;
+            // green → yellow → red
+            const r = t < 0.5 ? Math.round(255 * (t * 2)) : 255;
+            const g = t < 0.5 ? 255 : Math.round(255 * (1 - (t - 0.5) * 2));
+            return `rgb(${r},${g},60)`;
+        }
+
+        // ── Route rendering ───────────────────────────────────
+        var routeData = {{ route_geojson | tojson }};
+        var routeCoords = [];  // [[lat,lon], ...] for route
+        var routeSegments = []; // polyline references for hover
+
+        if (routeData) {
+            var geom = routeData.type === 'Feature' ? routeData.geometry : routeData;
+            var coords = geom && geom.coordinates ? geom.coordinates : [];
+
+            if (hasElevation && coords.length > 1) {
+                // Build elevation lookup keyed by "lon,lat" (rounded)
+                var elevMap = {};
+                elevationProfile.forEach(function(p) {
+                    elevMap[p.lon.toFixed(5) + ',' + p.lat.toFixed(5)] = p.elevation;
+                });
+                var elevs = elevationProfile.map(function(p){ return p.elevation; });
+                var minElev = Math.min.apply(null, elevs);
+                var maxElev = Math.max.apply(null, elevs);
+
+                // Draw colored segments
+                for (var i = 0; i < coords.length - 1; i++) {
+                    var c1 = coords[i], c2 = coords[i+1];
+                    // Find nearest elevation
+                    var key1 = c1[0].toFixed(5) + ',' + c1[1].toFixed(5);
+                    var e = elevMap[key1] !== undefined ? elevMap[key1] : minElev;
+                    var color = elevColor(e, minElev, maxElev);
+                    var seg = L.polyline([[c1[1],c1[0]], [c2[1],c2[0]]], {
+                        color: color, weight: 5, opacity: 0.9
+                    }).addTo(map);
+                    routeSegments.push(seg);
+                    routeCoords.push([c1[1], c1[0]]);
+                }
+                routeCoords.push([coords[coords.length-1][1], coords[coords.length-1][0]]);
+
+                // Fit bounds
+                var allLatLngs = coords.map(function(c){ return [c[1], c[0]]; });
+                map.fitBounds(allLatLngs, { padding: [30, 30] });
+            } else {
+                var routeLayer = L.geoJSON(routeData, {
+                    style: { color: '#2d7e41', weight: 4, opacity: 0.85 }
                 }).addTo(map);
-
-                // Load route GeoJSON
-                var routeData = {{ route_json | safe if route_json else 'null'
-            }};
-            if (routeData) {
-                var routeLayer = L.geoJSON(routeData).addTo(map);
-                map.fitBounds(routeLayer.getBounds());
+                map.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+                if (coords.length) {
+                    routeCoords = coords.map(function(c){ return [c[1], c[0]]; });
+                }
             }
+        }
+
+        // Add start/end markers
+        {% if hike.start_lat and hike.start_lon %}
+        var startMarker = L.marker([{{ hike.start_lat }}, {{ hike.start_lon }}]).addTo(map)
+            .bindPopup('<b>Start:</b> {{ hike.start_name or "Start" }}');
+        {% if not route_geojson %}
+        map.setView([{{ hike.start_lat }}, {{ hike.start_lon }}], 13);
+        {% endif %}
+        {% endif %}
+        {% if hike.end_lat and hike.end_lon %}
+        var endMarker = L.marker([{{ hike.end_lat }}, {{ hike.end_lon }}]).addTo(map)
+            .bindPopup('<b>End:</b> {{ hike.end_name or "End" }}');
+        {% endif %}
+
+        // ── Hover marker for chart ↔ map sync ────────────────
+        var hoverMarker = L.circleMarker([0,0], {
+            radius: 7, fillColor: '#1e40af', fillOpacity: 0.9,
+            color: '#fff', weight: 2
+        });
+        var hoverActive = false;
+
+        // ── Elevation chart ───────────────────────────────────
+        if (hasElevation) {
+            var labels = elevationProfile.map(function(p) { return (p.distance / 1000).toFixed(2); });
+            var data = elevationProfile.map(function(p) { return p.elevation; });
+
+            // Build gradient for chart fill
+            var ctx = document.getElementById('elevation-chart').getContext('2d');
+            var elevs = data;
+            var minE = Math.min.apply(null, elevs);
+            var maxE = Math.max.apply(null, elevs);
+
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Elevation (m)',
+                        data: data,
+                        borderColor: '#2d7e41',
+                        backgroundColor: 'rgba(45, 126, 65, 0.12)',
+                        fill: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#1e40af',
+                        tension: 0.25,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.parsed.y + ' m'; },
+                                title: function(items) { return items[0].label + ' km'; },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Distance (km)' } },
+                        y: { title: { display: true, text: 'Elevation (m)' } },
+                    },
+                    onHover: function(event, elements) {
+                        if (elements.length > 0) {
+                            var idx = elements[0].index;
+                            var pt = elevationProfile[idx];
+                            if (pt && pt.lat && pt.lon) {
+                                hoverMarker.setLatLng([pt.lat, pt.lon]);
+                                if (!hoverActive) {
+                                    hoverMarker.addTo(map);
+                                    hoverActive = true;
+                                }
+                            }
+                        } else {
+                            if (hoverActive) {
+                                map.removeLayer(hoverMarker);
+                                hoverActive = false;
+                            }
+                        }
+                    },
+                },
             });
-        </script>
-        {% endblock %}
+
+            // Click on map → highlight nearest point on chart
+            if (routeCoords.length && elevationProfile.length) {
+                map.on('mousemove', function(e) {
+                    var minDist = Infinity, minIdx = 0;
+                    for (var i = 0; i < elevationProfile.length; i++) {
+                        var p = elevationProfile[i];
+                        var d = Math.pow(e.latlng.lat - p.lat, 2) + Math.pow(e.latlng.lng - p.lon, 2);
+                        if (d < minDist) { minDist = d; minIdx = i; }
+                    }
+                    chart.setActiveElements([{datasetIndex: 0, index: minIdx}]);
+                    chart.tooltip.setActiveElements([{datasetIndex: 0, index: minIdx}], {x: 0, y: 0});
+                    chart.update('none');
+
+                    var pt = elevationProfile[minIdx];
+                    hoverMarker.setLatLng([pt.lat, pt.lon]);
+                    if (!hoverActive) { hoverMarker.addTo(map); hoverActive = true; }
+                });
+                map.on('mouseout', function() {
+                    chart.setActiveElements([]);
+                    chart.tooltip.setActiveElements([], {x:0,y:0});
+                    chart.update('none');
+                    if (hoverActive) { map.removeLayer(hoverMarker); hoverActive = false; }
+                });
+            }
+        }
+    });
+
+    // ── Share button (copy URL to clipboard) ───────────────────
+    function shareHike() {
+        var url = window.location.href;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function() {
+                showToast('Link copied to clipboard');
+            });
+        } else {
+            // Fallback for older browsers
+            var ta = document.createElement('textarea');
+            ta.value = url;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Link copied to clipboard');
+        }
+    }
+
+    // ── Photo upload preview & validation ─────────────────────
+    (function() {
+        var input = document.getElementById('photo-file-input');
+        var preview = document.getElementById('photo-preview');
+        var previewImg = document.getElementById('photo-preview-img');
+        var errorEl = document.getElementById('photo-error');
+        var submitBtn = document.getElementById('photo-submit-btn');
+        var MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+
+        if (input) {
+            input.addEventListener('change', function() {
+                errorEl.classList.add('hidden');
+                preview.classList.add('hidden');
+                var file = input.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    showToast('Please select an image file (JPEG, PNG, WebP, GIF).', 'error');
+                    input.value = '';
+                    return;
+                }
+                if (file.size > MAX_SIZE) {
+                    showToast('Image is too large (max 10 MB).', 'error');
+                    input.value = '';
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Show uploading state
+        var form = document.getElementById('photo-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Uploading...';
+                showToast('Uploading photo...');
+            });
+        }
+    })();
+
+    // ── Interactive star picker ───────────────────────────────
+    (function() {
+        var picker = document.getElementById('star-picker');
+        if (!picker) return;
+        var buttons = picker.querySelectorAll('.star-btn');
+        var hidden = document.getElementById('rating-value');
+        var label = document.getElementById('star-label');
+        var currentVal = 5;
+
+        function render(val, isHover) {
+            buttons.forEach(function(btn) {
+                var v = parseInt(btn.getAttribute('data-value'));
+                var svg = btn.querySelector('svg');
+                if (v <= val) {
+                    svg.classList.remove('text-gray-300');
+                    svg.classList.add('text-amber-400');
+                } else {
+                    svg.classList.remove('text-amber-400');
+                    svg.classList.add('text-gray-300');
+                }
+                if (!isHover) {
+                    btn.style.transform = v <= val ? 'scale(1)' : 'scale(0.9)';
+                }
+            });
+            label.textContent = val + ' / 5';
+        }
+
+        buttons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                currentVal = parseInt(btn.getAttribute('data-value'));
+                hidden.value = currentVal;
+                render(currentVal, false);
+            });
+            btn.addEventListener('mouseenter', function() {
+                render(parseInt(btn.getAttribute('data-value')), true);
+            });
+        });
+
+        picker.addEventListener('mouseleave', function() {
+            render(currentVal, false);
+        });
+
+        render(currentVal, false);
+    })();
+</script>
+{% endblock %}

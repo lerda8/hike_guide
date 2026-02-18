@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -7,7 +8,11 @@ from database import create_db_and_tables, engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    load_dotenv()
     create_db_and_tables()
+    # Ensure upload directory exists
+    import os
+    os.makedirs(os.path.join("static", "uploads"), exist_ok=True)
     # Create dummy user for dev
     with Session(engine) as session:
         from models import User

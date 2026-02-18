@@ -9,3 +9,7 @@ python-jose[cryptography]
 gpxpy
 itsdangerous
 bcrypt
+httpx
+python-dotenv
+pytest
+pytest-asyncio

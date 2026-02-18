@@ -5,34 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hike Guide{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sand:   { 50:'#fdf8f0', 100:'#faefd9', 200:'#f4ddb3', 300:'#ecc882', 400:'#e2ae50', 500:'#d89a2e', 600:'#c17f22', 700:'#9c611e', 800:'#804e20', 900:'#6a411e' },
+                        forest: { 50:'#f0faf2', 100:'#dbf2df', 200:'#bae5c3', 300:'#8bd19b', 400:'#56b66d', 500:'#3a9a52', 600:'#2d7e41', 700:'#266436', 800:'#22502e', 900:'#1e4228' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
-        /* Custom styles if needed */
-        .leaflet-container {
-            height: 400px;
-            width: 100%;
+        .leaflet-container { height: 400px; width: 100%; border-radius: 0.75rem; }
+        body { -webkit-font-smoothing: antialiased; }
+
+        /* ── Toast notification ─────────────────────────── */
+        #toast-container { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
+        .toast {
+            pointer-events: auto;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #fff;
+            background: #1e4228;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s, transform 0.25s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.toast-error { background: #991b1b; }
     </style>
+    {% block head %}{% endblock %}
 </head>
-<body class="bg-gray-50 text-gray-900">
-    <nav class="bg-white shadow">
+<body class="bg-sand-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-sand-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <a href="/" class="flex-shrink-0 flex items-center font-bold text-xl text-green-600">
-                        HikeGuide
+            <div class="flex items-center justify-between h-12">
+                <a href="/" class="flex items-center gap-1.5">
+                    <svg class="w-5 h-5 text-forest-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>
+                    <span class="font-display font-bold text-lg text-forest-700">HikeGuide</span>
+                </a>
+                <div class="flex items-center gap-0.5">
+                    <a href="/hikes"
+                       class="px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-forest-700 hover:bg-forest-50 transition-all">
+                        Explore
                     </a>
-                </div>
-                <div class="flex items-center">
-                    <a href="/login" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                    <a href="/hikes/map"
+                       class="px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-forest-700 hover:bg-forest-50 transition-all">
+                        Map
+                    </a>
+                    <a href="/hikes/new"
+                       class="ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-forest-600 hover:bg-forest-700 transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        New Hike
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {% block content %}{% endblock %}
+    <!-- Main Content -->
+    <main class="flex-1">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {% block content %}{% endblock %}
+        </div>
     </main>
+
+    <!-- Toast container -->
+    <div id="toast-container"></div>
+    <script>
+        function showToast(message, type) {
+            var container = document.getElementById('toast-container');
+            var toast = document.createElement('div');
+            toast.className = 'toast' + (type === 'error' ? ' toast-error' : '');
+            toast.textContent = message;
+            container.appendChild(toast);
+            requestAnimationFrame(function() { requestAnimationFrame(function() { toast.classList.add('show'); }); });
+            setTimeout(function() {
+                toast.classList.remove('show');
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 2500);
+        }
+    </script>
+
 </body>
 </html>

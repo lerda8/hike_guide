@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}All Hikes Map - Hike Guide{% endblock %}
+
+{% block head %}
+<style>
+    #map-container {
+        height: calc(100vh - 180px);
+        min-height: 500px;
+        display: flex;
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    #all-hikes-map { flex: 1; min-width: 0; }
+    #hike-sidebar {
+        width: 340px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid #e5e1da;
+        background: #fff;
+    }
+    #hike-sidebar-header {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e5e1da;
+        background: #fafaf7;
+    }
+    #hike-list {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #c5c0b8 transparent;
+    }
+    #hike-list::-webkit-scrollbar { width: 6px; }
+    #hike-list::-webkit-scrollbar-thumb { background: #c5c0b8; border-radius: 3px; }
+    .hike-card {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f0ece6;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .hike-card:hover, .hike-card.highlighted {
+        background: #f0fdf4;
+    }
+    .hike-card .color-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 4px;
+    }
+    .hike-card.hidden-viewport { display: none; }
+    #empty-state { display: none; padding: 2rem 1rem; text-align: center; }
+
+    @media (max-width: 768px) {
+        #map-container { flex-direction: column-reverse; height: auto; }
+        #all-hikes-map { height: 50vh; min-height: 300px; }
+        #hike-sidebar { width: 100%; max-height: 40vh; border-left: none; border-top: 1px solid #e5e1da; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+    <div>
+        <h1 class="font-display text-3xl font-extrabold tracking-tight text-gray-900">All Hikes Map</h1>
+        <p class="mt-1 text-sm text-gray-500">{{ hike_markers|length }} hike{{ 's' if hike_markers|length != 1 else '' }} total</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <a href="/hikes"
+           class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-600 ring-1 ring-sand-200 hover:bg-sand-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+            List View
+        </a>
+        <a href="/hikes/new"
+           class="inline-flex items-center gap-1.5 rounded-xl bg-forest-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-forest-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Add Hike
+        </a>
+    </div>
+</div>
+
+<!-- Map + Sidebar -->
+<div id="map-container" class="bg-white ring-1 ring-sand-200 shadow-sm">
+    <div id="all-hikes-map" class="z-0"></div>
+
+    <div id="hike-sidebar">
+        <div id="hike-sidebar-header">
+            <h2 class="text-sm font-bold text-gray-900">Hikes in view</h2>
+            <p id="visible-count" class="text-xs text-gray-500 mt-0.5"></p>
+        </div>
+        <div id="hike-list"></div>
+        <div id="empty-state">
+            <svg class="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+            </svg>
+            <p class="text-sm text-gray-400">No hikes in this area</p>
+            <p class="text-xs text-gray-400 mt-1">Zoom out or pan the map</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var map = L.map('all-hikes-map').setView([49.8175, 15.4730], 7);
+
+    L.tileLayer('{{ tile_url }}', {
+        attribution: '{{ tile_attribution|safe }}',
+        maxZoom: 19
+    }).addTo(map);
+
+    var hikeData = {{ hike_markers | tojson }};
+    var routeColors = ['#2d7e41','#c17f22','#1e40af','#9333ea','#dc2626','#0891b2','#4f46e5','#be185d'];
+    var allBounds = [];
+
+    /* Per-hike lookup: id -> { routeLayer, marker, bounds, color, cardEl } */
+    var hikeLayers = {};
+
+    var difficultyIcon = { 'Easy': '🟢', 'Medium': '🟡', 'Hard': '🔴' };
+
+    var listEl = document.getElementById('hike-list');
+
+    hikeData.forEach(function(h, idx) {
+        var color = routeColors[idx % routeColors.length];
+        var entry = { color: color, bounds: null, routeLayer: null, marker: null, cardEl: null };
+
+        /* ── Map layers ── */
+        if (h.route) {
+            /* White casing outline for contrast against busy map tiles */
+            entry.casingLayer = L.geoJSON(h.route, {
+                style: { color: '#fff', weight: 8, opacity: 0.6, lineCap: 'round', lineJoin: 'round' },
+                interactive: false
+            }).addTo(map);
+            /* Colored route on top */
+            entry.routeLayer = L.geoJSON(h.route, {
+                style: { color: color, weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }
+            }).addTo(map);
+            entry.routeLayer.bindPopup(
+                '<div class="text-sm">' +
+                '<a href="/hikes/' + h.id + '" class="font-bold text-forest-700 hover:underline">' + h.title + '</a>' +
+                '<div class="text-gray-500 mt-1">' +
+                (h.distance ? h.distance + ' km' : '') +
+                (h.elevation_gain ? ' · ' + h.elevation_gain + 'm↑' : '') +
+                (h.difficulty ? ' · ' + h.difficulty : '') +
+                '</div></div>'
+            );
+            entry.bounds = entry.routeLayer.getBounds();
+            allBounds.push(entry.bounds);
+        }
+
+        if (h.start) {
+            entry.marker = L.circleMarker(h.start, {
+                radius: 8, fillColor: color, fillOpacity: 1,
+                color: '#fff', weight: 3
+            }).addTo(map);
+            entry.marker.bindPopup(
+                '<a href="/hikes/' + h.id + '" class="font-bold text-forest-700 hover:underline text-sm">' + h.title + '</a>'
+            );
+            if (!entry.bounds) {
+                entry.bounds = L.latLngBounds(h.start, h.start);
+                allBounds.push(entry.bounds);
+            }
+        }
+
+        /* Map layer hover → highlight sidebar card */
+        function onMapHover() { highlightHike(h.id); }
+        function onMapUnhover() { unhighlightHike(h.id); }
+        if (entry.routeLayer) {
+            entry.routeLayer.on('mouseover', onMapHover);
+            entry.routeLayer.on('mouseout', onMapUnhover);
+        }
+        if (entry.marker) {
+            entry.marker.on('mouseover', onMapHover);
+            entry.marker.on('mouseout', onMapUnhover);
+        }
+
+        /* ── Sidebar card ── */
+        var card = document.createElement('div');
+        card.className = 'hike-card';
+        card.dataset.hikeId = h.id;
+
+        var badges = [];
+        if (h.distance) badges.push(h.distance + ' km');
+        if (h.elevation_gain) badges.push(h.elevation_gain + 'm↑');
+        if (h.estimated_time) badges.push(h.estimated_time);
+
+        card.innerHTML =
+            '<div class="flex gap-2.5">' +
+                '<div class="color-dot" style="background:' + color + '"></div>' +
+                '<div class="flex-1 min-w-0">' +
+                    '<div class="flex items-center gap-1.5">' +
+                        '<span class="text-sm font-semibold text-gray-900 truncate">' + h.title + '</span>' +
+                        (h.difficulty ? '<span class="text-xs flex-shrink-0">' + (difficultyIcon[h.difficulty] || '') + '</span>' : '') +
+                    '</div>' +
+                    (badges.length ? '<div class="text-xs text-gray-500 mt-0.5">' + badges.join(' · ') + '</div>' : '') +
+                '</div>' +
+            '</div>';
+
+        /* Sidebar hover → highlight on map */
+        card.addEventListener('mouseenter', function() { highlightHike(h.id); });
+        card.addEventListener('mouseleave', function() { unhighlightHike(h.id); });
+
+        /* Click → open hike detail */
+        card.addEventListener('click', function() {
+            window.location.href = '/hikes/' + h.id;
+        });
+
+        listEl.appendChild(card);
+        entry.cardEl = card;
+        hikeLayers[h.id] = entry;
+    });
+
+    /* ── Highlight / unhighlight ── */
+    function highlightHike(id) {
+        var e = hikeLayers[id];
+        if (!e) return;
+        if (e.casingLayer) e.casingLayer.setStyle({ weight: 12, opacity: 0.8 });
+        if (e.routeLayer) e.routeLayer.setStyle({ weight: 7, opacity: 1 });
+        if (e.marker) e.marker.setRadius(11);
+        if (e.cardEl) e.cardEl.classList.add('highlighted');
+    }
+    function unhighlightHike(id) {
+        var e = hikeLayers[id];
+        if (!e) return;
+        if (e.casingLayer) e.casingLayer.setStyle({ weight: 8, opacity: 0.6 });
+        if (e.routeLayer) e.routeLayer.setStyle({ weight: 5, opacity: 0.9 });
+        if (e.marker) e.marker.setRadius(8);
+        if (e.cardEl) e.cardEl.classList.remove('highlighted');
+    }
+
+    /* ── Filter sidebar by map viewport ── */
+    function updateVisibleHikes() {
+        var mapBounds = map.getBounds();
+        var visibleCount = 0;
+
+        hikeData.forEach(function(h) {
+            var entry = hikeLayers[h.id];
+            if (!entry || !entry.cardEl) return;
+
+            var visible = false;
+            if (entry.bounds) {
+                visible = mapBounds.intersects(entry.bounds);
+            } else if (h.start) {
+                visible = mapBounds.contains(L.latLng(h.start[0], h.start[1]));
+            }
+
+            if (visible) {
+                entry.cardEl.classList.remove('hidden-viewport');
+                visibleCount++;
+            } else {
+                entry.cardEl.classList.add('hidden-viewport');
+            }
+        });
+
+        document.getElementById('visible-count').textContent =
+            visibleCount + ' of ' + hikeData.length + ' hike' + (hikeData.length !== 1 ? 's' : '');
+        document.getElementById('empty-state').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    map.on('moveend', updateVisibleHikes);
+    map.on('zoomend', updateVisibleHikes);
+
+    /* ── Fit all hikes ── */
+    if (allBounds.length) {
+        var combined = allBounds[0];
+        for (var i = 1; i < allBounds.length; i++) {
+            combined.extend(allBounds[i]);
+        }
+        map.fitBounds(combined, { padding: [40, 40] });
+    }
+
+    /* Initial sidebar update once map settles */
+    setTimeout(updateVisibleHikes, 300);
+});
+</script>
+{% endblock %}

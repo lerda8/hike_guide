@@ -1,0 +1,221 @@
+openapi: 3.0.0
+info:
+  title: REST API Mapy.com maptiles
+  description: Serves map tiles
+  version: 1.0.0
+
+servers:
+  - url: https://api.mapy.com
+  - url: https://api.mapy.cz
+
+security:
+  - queryApikey: []
+  - headerApikey: []
+
+paths:
+  /v1/maptiles/{mapset}/{tileSize}/{z}/{x}/{y}:
+    get:
+      description: |
+        Get map tile image.
+        Maximum rate limit 500 requests per second per API key.
+      tags:
+        - tiles
+      parameters:
+        - $ref: '#/components/parameters/ParameterMapset'
+        - name: tileSize
+          description: >
+            Tile image size in pixel with optional resolution increase flag (@2x - e.g. for retina displays).
+            @2x effectively returns maptile with 2-times more pixels per axis (i.e. 512 px for /256) and is allowed only for 'basic' and 'outdoor' `mapset`s
+          required: true
+          in: path
+          schema:
+            type: string
+            enum: ["256", "256@2x"]
+        - name: z
+          description: Tile z-coordinate in xyz TileJSON scheme
+          required: true
+          in: path
+          schema:
+            type: integer
+            example: 6
+            minimum: 0
+            maximum: 20
+        - name: x
+          description: Tile x-coordinate in xyz TileJSON scheme
+          required: true
+          in: path
+          schema:
+            type: integer
+            example: 34
+            minimum: 0
+        - name: y
+          description: Tile y-coordinate in xyz TileJSON scheme
+          required: true
+          in: path
+          schema:
+            type: integer
+            example: 21
+            minimum: 0
+        - $ref: "#/components/parameters/Language"
+      responses:
+        '200':
+          description: Tile image in standard format (PNG/JPEG)
+          content:
+            image/*: {}
+        '401':
+          description: >-
+            apikey query parameter was not part of the request. Returns image
+            tile with rendered error text.
+          content:
+            image/png: {}
+        '403':
+          description: >-
+            Invalid apikey / not permitted to access given resource. Returns
+            image tile with rendered error text.
+          content:
+            image/png: {}
+        '404':
+          description: >-
+            Invalid parameter value or parameter combination. Returns image tile
+            with rendered error text.
+          content:
+            image/png: {}
+        default:
+          $ref: '#/components/responses/ServerError'
+
+  /v1/maptiles/{mapset}/tiles.json:
+    get:
+      description: |
+         Get mapset description as TileJSON.
+         Maximum rate limit 100 requests per second per API key.
+      tags:
+        - tiles
+      parameters:
+        - $ref: '#/components/parameters/ParameterMapset'
+        - $ref: "#/components/parameters/Language"
+      responses:
+        '200':
+          description: TileJSON file
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TileJson"
+        '401':
+          description: apikey query parameter was not part of the request.
+          content:
+            text/html: {}
+        '403':
+          description: Invalid apikey / not permitted to access given resource.
+          content:
+            text/html: {}
+        '404':
+          description: Invalid mapset name
+          content:
+            image/png: {}
+        default:
+          $ref: '#/components/responses/ServerError'
+
+components:
+  schemas:
+    TileJson:
+      description: TileJSON schema
+      type: object
+      required:
+        - tilejson
+        - tiles
+      additionalProperties: false
+      properties:
+        tilejson:
+          type: string
+          pattern: "\\d+\\.\\d+\\.\\d+\\w?[\\w\\d]*"
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+          pattern: "\\d+\\.\\d+\\.\\d+\\w?[\\w\\d]*"
+        attribution:
+          type: string
+        template:
+          type: string
+        legend:
+          type: string
+        scheme:
+          type: string
+        tiles:
+          type: array
+          items:
+            type: string
+        grids:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            type: string
+        minzoom:
+          minimum: 0
+          maximum: 20
+          type: integer
+        maxzoom:
+          minimum: 0
+          maximum: 20
+          type: integer
+        bounds:
+          type: array
+          items:
+            minItems: 4
+            maxItems: 4
+            type: number
+        center:
+          type: array
+          items:
+            minItems: 3
+            maximum: 3
+            type: number
+  parameters:
+    ParameterMapset:
+      name: mapset
+      description: Map layer name
+      required: true
+      in: path
+      schema:
+        type: string
+        enum:
+          - basic
+          - outdoor
+          - winter
+          - aerial
+          - names-overlay
+          
+          
+    Language:
+      name: lang
+      description: |
+        Preferred language of entity labels.  
+        The chosen value affects only tiles with `z` <= 6 - country names will be displayed in English for all selected languages except `cs,sk`.
+      required: false
+      in: query
+      schema:
+        type: string
+        enum: [cs, de, el, en, es, fr, it, nl, pl, pt, ru, sk, tr, uk]
+        default: cs
+
+  responses:
+    ServerError:
+      description: Server error occured
+      content:
+        text/html: {}
+
+  securitySchemes:
+    headerApikey:
+      type: apiKey
+      in: header
+      name: X-Mapy-Api-Key
+
+    queryApikey:
+      type: apiKey
+      in: query
+      name: apikey
